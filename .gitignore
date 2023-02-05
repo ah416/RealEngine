@@ -12,10 +12,10 @@ RealEngine/libs/GLFW/glfw/deps/
 RealEngine/libs/GLFW/glfw/docs/
 RealEngine/libs/GLFW/bin-int/
 RealEngine/libs/glm/doc/
-# TestApp/**.json
-# TestApp/*.json
-# TestApp/Runtime-Results.json
-# TestApp/Startup-Results.json
+TestApp/**.json
+TestApp/*.json
+TestApp/Runtime-Results.json
+TestApp/Startup-Results.json
 
 # User-specific files
 *.rsuser
@@ -376,11 +376,17 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-/RealEngine/libs
 /TestApp/imgui.ini
 /TestApp/Runtime-Results.json
 /TestApp/Startup-Results.json
 /TestApp/somethin.png
-/RealEngine
 /RealEngine.sln
-/TestApp
+/RealEngine/libs/glfw
+/RealEngine/libs/imgui
+/RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/Jost/OpenType
+/RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/Jost/TrueType
+/RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/Jost
+/RealEngine/RealEngine.vcxproj
+/RealEngine/RealEngine.vcxproj.filters
+/TestApp/TestApp.vcxproj
+/TestApp/TestApp.vcxproj.filters
