@@ -381,12 +381,10 @@ FodyWeavers.xsd
 /TestApp/Startup-Results.json
 /TestApp/somethin.png
 /RealEngine.sln
-/RealEngine/libs/glfw
-/RealEngine/libs/imgui
-/RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/Jost/OpenType
-/RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/Jost/TrueType
 /RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/Jost
 /RealEngine/RealEngine.vcxproj
 /RealEngine/RealEngine.vcxproj.filters
 /TestApp/TestApp.vcxproj
 /TestApp/TestApp.vcxproj.filters
+/RealEngine/libs/glad/Glad.vcxproj
+/RealEngine/libs/glad/Glad.vcxproj.filters
