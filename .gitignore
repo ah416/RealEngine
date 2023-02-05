@@ -381,3 +381,6 @@ FodyWeavers.xsd
 /TestApp/Runtime-Results.json
 /TestApp/Startup-Results.json
 /TestApp/somethin.png
+/RealEngine
+/RealEngine.sln
+/TestApp
