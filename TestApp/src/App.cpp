@@ -20,7 +20,7 @@ public:
 
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
-		m_TestMesh.reset(new Mesh("../RealEngine/objects/AmongSus.obj"));
+		m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
 		m_TestMesh->Material->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
 		m_TestMesh->Material->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
 
