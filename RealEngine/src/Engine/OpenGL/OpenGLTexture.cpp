@@ -134,7 +134,5 @@ void OpenGLRenderTexture::Unbind() const
 
 void OpenGLRenderTexture::GetData(float* data) const
 {
-	//Bind();
 	glGetTextureImage(m_RendererID, 0, GL_RGBA, GL_FLOAT, sizeof(float) * (m_Width * m_Height) * 4, data);
-	//Unbind();
 }

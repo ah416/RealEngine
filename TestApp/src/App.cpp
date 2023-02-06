@@ -1,7 +1,6 @@
 #include <RealEngine.h>
 #include "HeightmapCreator/Heightmapper.h"
 #include "Engine/ImGuiWindows/DebugWindow.h"
-#include "ContentBrowser.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -50,7 +49,7 @@ public:
 			conversion_buf[i] = static_cast<uint8_t>(pixel_buf[i] * 255.0f);
 		Heightmapper map(1024, 1024, 4);
 		map.SetData(conversion_buf);
-		map.Write("something"); // frees the data passed to it :3
+		map.Write("something"); // frees the data passed to it (on stbi_write_png) :3
 		free(pixel_buf);
 	}
 
@@ -105,11 +104,6 @@ public:
 		PROFILE_FUNCTION();
 
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_AutoHideTabBar);
-
-		for (auto& panel : m_EditorPanels)
-		{
-			panel->OnImGuiRender();
-		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // make viewport the proper dimensions without padding
 		ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar);
@@ -190,9 +184,6 @@ public:
 		}
 	}
 private:
-	// WIP: editor panels for the engine editor
-	std::vector<Ref<EditorPanel>> m_EditorPanels;
-
 	bool m_ViewportHovered = false;
 	bool m_ShowCompute = false;
 
@@ -217,7 +208,7 @@ private:
 class TestApp : public Application
 {
 public:
-	TestApp() : Application(1920, 1080, "Cool Engine", "../RealEngine/Resources/cpp.png")
+	TestApp() : Application(1920, 1080, "Test Engine", "../RealEngine/textures/yote.png")
 	{
 		Ref<DebugWindow> debugWindow;
 		debugWindow.reset(new DebugWindow());
