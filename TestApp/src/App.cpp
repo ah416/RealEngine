@@ -41,16 +41,6 @@ public:
 		m_RayTracer->Bind();
 		m_RayTracer->Dispatch(1024 / 8, 1024 / 4, 1);
 		m_RayTracer->Unbind();
-
-		float* pixel_buf = (float*)malloc(sizeof(float) * (1024 * 1024) * 4);
-		uint8_t* conversion_buf = (uint8_t*)malloc(sizeof(uint8_t) * (1024 * 1024) * 4);
-		m_RayTexture->GetData(pixel_buf);
-		for (int i = 0; i < (1024 * 1024) * 4; i++)
-			conversion_buf[i] = static_cast<uint8_t>(pixel_buf[i] * 255.0f);
-		Heightmapper map(1024, 1024, 4);
-		map.SetData(conversion_buf);
-		map.Write("something"); // frees the data passed to it (on stbi_write_png) :3
-		free(pixel_buf);
 	}
 
 	virtual void OnDetach() override
@@ -90,11 +80,10 @@ public:
 		// Check for keypresses that affect camera TODO: should be changed to camera controller
 		m_Camera.ProcessKeyboardInput(timestep);
 
-		// Submit the mesh to the renderer
-		Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
-		
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
+
+		// TODO: add shaders for framebuffer post processing
 
 		Renderer::EndScene();
 	}
