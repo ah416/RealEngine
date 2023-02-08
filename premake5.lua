@@ -52,7 +52,7 @@ project "RealEngine"
 		"%{prj.name}/libs/glm",
 		"%{prj.name}/libs/FastNoiseLite",
 		"%{prj.name}/libs/stb_image",
-		"%{prj.name}/libs/assimp/include",
+		--"%{prj.name}/libs/assimp/include"
 		"/home/adam/VulkanSDK/1.3.239.0/x86_64/include"
 	}
 
@@ -62,16 +62,34 @@ project "RealEngine"
 		"glad",
 		"imgui",
 		"opengl32.lib",
-		"/home/adam/VulkanSDK/1.3.239.0/Lib/vulkan-1.lib",
-		"$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.lib" -- <-- required by assimp, unless we want to build it ourselves (which we don't)
+		"vulkan", -- <- download VulkanSDK and run the setup script for the lib to be in PATH
+		--"/home/adam/VulkanSDK/1.3.239.0/lib/vulkan-1.lib",
+		"assimp" -- <- this works only on linux with libassimp-dev installed
 	}
 
 	defines
 	{
 		"GLFW_INCLUDE_NONE",
-		"IMGUI_IMPL_OPENGL_LOADER_CUSTOM",
-		"_CRT_SECURE_NO_WARNINGS",
+		"IMGUI_IMPL_OPENGL_LOADER_CUSTOM"
 	}
+
+	filter "system:linux"
+		defines "REAL_LINUX"
+
+	filter "system:windows"
+		defines { "REAL_WINDOWS", "_CRT_SECURE_NO_WARNINGS" }
+
+		includedirs
+		{
+			"C:\\VulkanSDK\\Version\\Include",
+			"%{prj.name}\\libs\\assimp\\include"
+		}
+
+		links
+		{
+			"C:\\VulkanSDK\\1.3.239.0\\Lib\\vulkan-1.lib",
+			"%{prj.name}\\libs\\assimp\\bin\\Release\\assimp_mt.lib"
+		}
 
 	filter "configurations:Debug"
 		defines "REAL_DEBUG"
@@ -106,19 +124,28 @@ project "TestApp"
 		"RealEngine/libs/stb_image"
 	}
 
-	links 
-	{
-		"RealEngine",
-		"$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.lib"
-	}
-
-	postbuildcommands 
-	{
-		'{COPY} "$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.dll" "%{cfg.targetdir}"' -- <--- required by assimp
-	}
+	filter "system:linux"
+		links
+		{
+			"RealEngine",
+			"glad",
+			"glfw",
+			"imgui",
+			"assimp"
+		}
 
 	filter "system:windows"
 		linkoptions { "/ENTRY:WinMainCRTStartup" }
+
+		postbuildcommands 
+		{
+			'{COPY} "$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.dll" "%{cfg.targetdir}"' -- <--- required by assimp
+		}
+
+		links
+		{
+			"RealEngine"
+		}
 
 	filter "configurations:Debug"
 		defines "REAL_DEBUG"

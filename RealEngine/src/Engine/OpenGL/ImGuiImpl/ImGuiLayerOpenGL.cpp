@@ -36,7 +36,7 @@ void ImGuiLayerOpenGL::OnAttach()
 	auto& style = ImGui::GetStyle();
 	auto& colors = style.Colors;
 
-	io.Fonts->AddFontFromFileTTF("../RealEngine/src/engine/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf", 16.0f);
+	io.Fonts->AddFontFromFileTTF("../RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf", 16.0f);
 
 	//========================================================
 	/// Colors

@@ -142,7 +142,8 @@ void WindowsWindow::Init()
 	GLFWimage icon{};
 	int channels;
 	icon.pixels = stbi_load(m_IconPath, &icon.width, &icon.height, &channels, 4);
-	glfwSetWindowIcon(window, 1, &icon);
+	if (icon.pixels)
+		glfwSetWindowIcon(window, 1, &icon);
 	stbi_image_free(icon.pixels);
 }
 

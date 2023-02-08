@@ -36,14 +36,14 @@ public:
 		m_RayTexture->Bind(1);
 		m_RayTracer->SetTexture(m_RayTexture);
 		m_RayTexture->Unbind();
-		
+
 		m_RayTexture->Bind(1);
 		m_RayTracer->Bind();
 		m_RayTracer->Dispatch(1024 / 8, 1024 / 4, 1);
 		m_RayTracer->Unbind();
 
-		float* pixel_buf = (float*)malloc(sizeof(float) * (1024 * 1024) * 4);
-		uint8_t* conversion_buf = (uint8_t*)malloc(sizeof(uint8_t) * (1024 * 1024) * 4);
+		float *pixel_buf = (float *)malloc(sizeof(float) * (1024 * 1024) * 4);
+		uint8_t *conversion_buf = (uint8_t *)malloc(sizeof(uint8_t) * (1024 * 1024) * 4);
 		m_RayTexture->GetData(pixel_buf);
 		for (int i = 0; i < (1024 * 1024) * 4; i++)
 			conversion_buf[i] = static_cast<uint8_t>(pixel_buf[i] * 255.0f);
@@ -63,7 +63,7 @@ public:
 
 		// Always Clear and SetClearColor before rendering
 		RenderCommand::Clear();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
 
 		// Bind compute shader, set uniform, and Dispatch
 		m_Tex->Bind();
@@ -82,7 +82,7 @@ public:
 
 		// Clear and set the clear color
 		RenderCommand::Clear();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
 
 		// Give the renderer the camera position and view/transformation matrix
 		Renderer::BeginScene(m_Camera);
@@ -91,8 +91,8 @@ public:
 		m_Camera.ProcessKeyboardInput(timestep);
 
 		// Submit the mesh to the renderer
-		Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
-		
+		Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), {0.0, 0.0, 0.0}));
+
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
 
@@ -122,9 +122,9 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image((void*)m_Compute->GetTextureID(), ImVec2{ 2048, 2048 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image((void *)m_Compute->GetTextureID(), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
 		else
-			ImGui::Image((void*)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{ contentArea.x, contentArea.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });// , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image((void *)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::IsItemHovered())
 			m_ViewportHovered = true;
@@ -135,27 +135,27 @@ public:
 		ImGui::PopStyleVar();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
-		if (ImGui::Button("ComputeShader/Framebuffer", { 180, 25 }))
+		if (ImGui::Button("ComputeShader/Framebuffer", {180, 25}))
 		{
 			m_ShowCompute ^= 1;
 		}
 		ImGui::End();
 	}
 
-	virtual void OnEvent(Event& e) override
+	virtual void OnEvent(Event &e) override
 	{
 		EventType type = e.GetType();
 
 		if (type == EventType::MouseMoved)
 		{
-			MouseMovedEvent mouse = *(MouseMovedEvent*)&e;
+			MouseMovedEvent mouse = *(MouseMovedEvent *)&e;
 			if (m_ViewportHovered)
 				m_Camera.ProcessMouseInput(mouse.GetMouseX(), mouse.GetMouseY());
 		}
 
 		if (type == EventType::MouseScrolled)
 		{
-			MouseScrolledEvent mouse = *(MouseScrolledEvent*)&e;
+			MouseScrolledEvent mouse = *(MouseScrolledEvent *)&e;
 			if (mouse.GetYOffset() == -1)
 				m_Camera.SetMovementSpeed(m_Camera.GetMovementSpeed() * 0.9f);
 			else
@@ -164,7 +164,7 @@ public:
 
 		if (type == EventType::KeyPress)
 		{
-			KeyPressedEvent key = *(KeyPressedEvent*)&e;
+			KeyPressedEvent key = *(KeyPressedEvent *)&e;
 			int keycode = key.GetKeycode();
 
 			if (keycode == REAL_KEY_SPACE)
@@ -175,7 +175,7 @@ public:
 
 		if (type == EventType::WindowResize)
 		{
-			WindowResizeEvent resize = *(WindowResizeEvent*)&e;
+			WindowResizeEvent resize = *(WindowResizeEvent *)&e;
 			m_Camera.SetWindowWidth(resize.GetWidth());
 			m_Camera.SetWindowHeight(resize.GetHeight());
 			m_Camera.RecalculateViewProjection();
@@ -183,6 +183,7 @@ public:
 			m_Framebuffer->Resize(resize.GetWidth(), resize.GetHeight());
 		}
 	}
+
 private:
 	bool m_ViewportHovered = false;
 	bool m_ShowCompute = false;
@@ -218,4 +219,10 @@ public:
 	}
 };
 
-Application* CreateApplication() { return new TestApp(); }
+Application *CreateApplication()
+{
+	std::filesystem::current_path("/home/adam/Dev/RealEngine/TestApp");
+	::Logger::Get().Info("current_path: {}", std::filesystem::current_path());
+	::Logger::Get().Info("exists?: {}", std::filesystem::exists("../RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf"));
+	return new TestApp();
+}
