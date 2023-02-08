@@ -52,9 +52,8 @@ project "RealEngine"
 		"%{prj.name}/libs/glm",
 		"%{prj.name}/libs/FastNoiseLite",
 		"%{prj.name}/libs/stb_image",
-		"%{prj.name}/libs/OBJ-Loader/source", -- <-- to be removed once transition to assimp is complete
 		"%{prj.name}/libs/assimp/include",
-		"C:/VulkanSDK/1.3.204.1/Include"
+		"/home/adam/VulkanSDK/1.3.239.0/x86_64/include"
 	}
 
 	links 
@@ -63,7 +62,7 @@ project "RealEngine"
 		"glad",
 		"imgui",
 		"opengl32.lib",
-		"C:/VulkanSDK/1.3.204.1/Lib/vulkan-1.lib",
+		"/home/adam/VulkanSDK/1.3.239.0/Lib/vulkan-1.lib",
 		"$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.lib" -- <-- required by assimp, unless we want to build it ourselves (which we don't)
 	}
 
@@ -72,7 +71,6 @@ project "RealEngine"
 		"GLFW_INCLUDE_NONE",
 		"IMGUI_IMPL_OPENGL_LOADER_CUSTOM",
 		"_CRT_SECURE_NO_WARNINGS",
-		"REAL_DIRECTX"
 	}
 
 	filter "configurations:Debug"
@@ -119,7 +117,8 @@ project "TestApp"
 		'{COPY} "$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.dll" "%{cfg.targetdir}"' -- <--- required by assimp
 	}
 
-	linkoptions { "/ENTRY:WinMainCRTStartup" }
+	filter "system:windows"
+		linkoptions { "/ENTRY:WinMainCRTStartup" }
 
 	filter "configurations:Debug"
 		defines "REAL_DEBUG"

@@ -19,6 +19,7 @@ public:
 	{
 		PROFILE_FUNCTION();
 
+#ifdef _WIN32
 		LARGE_INTEGER freq;
 		QueryPerformanceFrequency(&freq);
 		LARGE_INTEGER time;
@@ -36,6 +37,13 @@ public:
 			m_LastTime = time.QuadPart;
 		}
 
+#else
+		m_Frames++;
+		m_DisplayFPS = m_Frames;
+		m_Frames = 0;
+		m_LastTime = 0;
+		unsigned char micro = 1;
+#endif // _WIN32
 		ImGui::Begin("Debug");
 		ImGui::Text("Current FPS: %f", m_DisplayFPS);
 		ImGui::Text("Frametime: %f milliseconds", (double)micro * 0.001);
@@ -46,7 +54,7 @@ public:
 		if (ImGui::TreeNode("Render Data"))
 		{
 			ImGui::Text("Draw Calls: %u", Renderer::GetRenderData().DrawCalls);
-			ImGui::Text("Vertex Count: %llu", Renderer::GetRenderData().Vertices);
+			ImGui::Text("Vertex Count: %luu", Renderer::GetRenderData().Vertices);
 			ImGui::Text("Index Count: %llu", Renderer::GetRenderData().Indices);
 
 			ImGui::TreePop();
@@ -55,8 +63,8 @@ public:
 #ifdef PROFILE_IMGUI
 		if (ImGui::TreeNode("Profile Timings"))
 		{
-			std::unordered_map<std::string, int64_t>& map = Instrumentor::Get().GetProfileMap();
-			for (auto const& [name, duration] : map)
+			std::unordered_map<std::string, int64_t> &map = Instrumentor::Get().GetProfileMap();
+			for (auto const &[name, duration] : map)
 			{
 				char label[250];
 				strcpy_s(label, "%.3fms ");
@@ -69,6 +77,7 @@ public:
 #endif
 		ImGui::End();
 	}
+
 private:
 	uint64_t m_LastTime;
 	uint64_t m_LastTimeMicro;

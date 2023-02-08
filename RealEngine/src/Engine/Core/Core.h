@@ -1,6 +1,5 @@
 #pragma once
 
-//#define LOG_ENABLE_SOURCE_LOC // enables source location tracking automatically in the logger
 #include "Engine/Tools/Logger.h"
 
 #include <memory>
@@ -15,13 +14,20 @@
 
 #include <Windows.h>
 
-#endif
+#endif // _WIN32
 
 // DEBUG
 #ifdef REAL_DEBUG
 
+#ifdef _WIN32
 // Debug assert uses __debugbreak() which causes the MSVC debugger to enter break mode, release does not use this
 #define REAL_ASSERT(x, text) if (!x) { ::Logger::Get().Error(text); __debugbreak(); }
+
+#else
+
+#define REAL_ASSERT(x, text) if (!x) { ::Logger::Get().Error(text); }
+
+#endif // _WIN32
 
 // Only prints in debug
 #define REAL_DEBUG(...) ::Logger::Get().Info(__VA_ARGS__)
@@ -35,10 +41,10 @@
 #define REAL_CRITICAL(...) ::Logger::Get().Critical(__VA_ARGS__)
 
 // Define this to allow profiling
-#define PROFILE
+//#define PROFILE
 
 // Define this to diplay profile results in the custom imgui debug window (OpenGL/ImGuiPrefabs/DebugWindow.h) 
-#define PROFILE_IMGUI
+//#define PROFILE_IMGUI
 
 #else // RELEASE //
 

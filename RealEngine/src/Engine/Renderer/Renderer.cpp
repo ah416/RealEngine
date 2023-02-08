@@ -54,7 +54,7 @@ void Renderer::Submit(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	{
 		shader->Bind();
 
-		mesh->Material->DiffuseTex->Bind();
+		mesh->MeshMaterial->DiffuseTex->Bind();
 		shader->UploadUniformInt1("u_Material.diffuse", 0);
 
 		shader->UploadUniformFloat3("u_Light.position", { 1.0f, 1.0f, 1.0f });
@@ -90,9 +90,9 @@ void Renderer::Submit(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	for (auto& shader : m_Shaders)
 		shader->Unbind();
 
-	mesh->Material->DiffuseTex->Unbind();
-	mesh->Material->NormalTex->Unbind();
-	mesh->Material->SpecularTex->Unbind();
+	mesh->MeshMaterial->DiffuseTex->Unbind();
+	mesh->MeshMaterial->NormalTex->Unbind();
+	mesh->MeshMaterial->SpecularTex->Unbind();
 }
 
 void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
@@ -154,9 +154,9 @@ void Renderer::Submit(const std::shared_ptr<Shader>& shader, const Submesh& mesh
 // Used to draw a mesh with submeshes, will be replaced by function without shader param
 void Renderer::Submit(const Ref<Shader>& shader, const Ref<Mesh>& mesh, const glm::mat4& transform)
 {
-	mesh->Material->DiffuseTex->Bind();
-	mesh->Material->NormalTex->Bind(1);
-	mesh->Material->SpecularTex->Bind(2);
+	mesh->MeshMaterial->DiffuseTex->Bind();
+	mesh->MeshMaterial->NormalTex->Bind(1);
+	mesh->MeshMaterial->SpecularTex->Bind(2);
 
 	shader->Bind();
 	shader->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
@@ -185,9 +185,9 @@ void Renderer::Submit(const Ref<Shader>& shader, const Ref<Mesh>& mesh, const gl
 	}
 	shader->Unbind();
 
-	mesh->Material->DiffuseTex->Unbind();
-	mesh->Material->NormalTex->Unbind();
-	mesh->Material->SpecularTex->Unbind();
+	mesh->MeshMaterial->DiffuseTex->Unbind();
+	mesh->MeshMaterial->NormalTex->Unbind();
+	mesh->MeshMaterial->SpecularTex->Unbind();
 }
 
 /*

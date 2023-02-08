@@ -5,7 +5,7 @@
 #include "Engine/Renderer/Mesh/Submesh.h"
 #include "Engine/Tools/MeshLoader.h"
 
-Mesh::Mesh(const std::string& filepath) : VertexCount(0), IndexCount(0), Material(new ::Material(""))
+Mesh::Mesh(const std::string& filepath) : VertexCount(0), IndexCount(0), MeshMaterial(new ::Material(""))
 {
 	REAL_ASSERT(MeshLoader::Load(filepath, this), "Failed loading file!");
 }

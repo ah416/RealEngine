@@ -2,9 +2,11 @@
 
 #include "Engine/Core/Application.h"
 
+#ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "../libs/glfw/include/GLFW/glfw3.h"
 #include <../libs/glfw/include/GLFW/glfw3native.h>
+#endif
 
 #include <filesystem>
 

@@ -37,7 +37,7 @@ public:
 
 	std::vector<Submesh> m_Submeshes;
 
-	Ref<Material> Material;
+	Ref<Material> MeshMaterial;
 private:
 	std::vector<Vertex> m_FullVertices;
 	std::vector<Index> m_Indices;

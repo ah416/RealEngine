@@ -2,7 +2,9 @@
 
 #include "EngineFilesystem.h"
 
+#ifdef _WIN32
 #include <ShlObj.h>
+#endif
 
 bool Filesystem::IsDirectory(std::filesystem::path path)
 {
@@ -19,6 +21,7 @@ void Filesystem::OpenInFileExplorer(std::filesystem::path path)
 
 std::filesystem::path Filesystem::OpenFileDialog(const char* filter)
 {
+#ifdef _WIN32
 	OPENFILENAMEA ofn;       // common dialog box structure
 	CHAR szFile[260] = { 0 };       // if using TCHAR macros
 
@@ -38,6 +41,7 @@ std::filesystem::path Filesystem::OpenFileDialog(const char* filter)
 		std::replace(fp.begin(), fp.end(), '\\', '/');
 		return std::filesystem::path(fp);
 	}
+#endif // _WIN32
 
 	return std::filesystem::path();
 }

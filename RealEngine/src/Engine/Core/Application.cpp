@@ -31,8 +31,10 @@ Application::Application(int width, int height, const char* title, const char* i
 
 void Application::Run()
 {
+#ifdef _WIN32
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
+#endif // _WIN32
 
 	for (Layer* layer : m_LayerStack)
 	{
@@ -41,10 +43,16 @@ void Application::Run()
 
 	while (m_Running)
 	{
+#ifdef _WIN32
 		LARGE_INTEGER time;
 		QueryPerformanceCounter(&time);
 		Timestep timestep = ((time.QuadPart - m_LastFrameTime) * 1000000) / freq.QuadPart; /* 1,000,000 is the number to convert to microseconds (for... accuracy?) */
 		m_LastFrameTime = time.QuadPart;
+#else
+		double time = glfwGetTime();
+		Timestep timestep = time - m_LastFrameTime;
+		m_LastFrameTime = time;
+#endif // _WIN32
 
 		for (Layer* layer : m_LayerStack)
 		{

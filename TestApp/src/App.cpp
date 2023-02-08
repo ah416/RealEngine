@@ -20,8 +20,8 @@ public:
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
 		m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
-		m_TestMesh->Material->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
-		m_TestMesh->Material->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
+		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
+		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
 
 		std::string computeShader = Shader::ReadShader("../RealEngine/Resources/Shaders/compute.shader");
 		m_Compute.reset(ComputeShader::Create(computeShader));

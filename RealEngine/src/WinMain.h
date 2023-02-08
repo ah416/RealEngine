@@ -1,6 +1,6 @@
 #pragma once
 
-/*
+#ifndef _WIN32
 extern Application* CreateApplication();
 
 int main()
@@ -18,7 +18,8 @@ int main()
 	delete app;
 	return 0;
 }
-*/
+
+#else
 
 #include <Windows.h>
 #include <iostream>
@@ -45,3 +46,5 @@ int CALLBACK WinMain(
 
 	return 0;
 }
+
+#endif

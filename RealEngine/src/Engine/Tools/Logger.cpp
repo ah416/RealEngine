@@ -1,12 +1,10 @@
-#include "realpch.h"
+#include "Logger.h"
 
-#include "Engine/Tools/Logger.h"
-
-std::shared_ptr<Logger> Logger::s_Instance = nullptr;
+Logger* Logger::s_Instance = nullptr;
 
 void Logger::Init()
 {
-	s_Instance.reset(new Logger());
+	s_Instance = new Logger();
 	s_Instance->Info("Initialized logger!");
 }
 
