@@ -6,7 +6,6 @@ project "GLFW"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	
 	files
 	{
 		"include/GLFW/glfw3.h",
@@ -19,6 +18,7 @@ project "GLFW"
 		"src/vulkan.c",
 		"src/window.c"
 	}
+
 	filter "system:linux"
 		pic "On"
 
@@ -36,7 +36,14 @@ project "GLFW"
 			"src/glx_context.c",
 			"src/egl_context.c",
 			"src/osmesa_context.c",
-			"src/linux_joystick.c"
+			"src/linux_joystick.c",
+			"src/platform.c",
+			"src/posix_module.c",
+			"src/null_init.c",
+			"src/null_window.c",
+			"src/null_monitor.c",
+			"src/null_joystick.c",
+			"src/posix_poll.c",
 		}
 
 		defines
