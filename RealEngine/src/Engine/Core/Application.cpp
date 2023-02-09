@@ -51,7 +51,7 @@ void Application::Run()
 #else
 		double time = glfwGetTime();
 		Timestep timestep = time - m_LastFrameTime;
-		m_LastFrameTime = time;
+		m_LastFrameTime = time - m_LastFrameTime;
 #endif // _WIN32
 
 		for (Layer* layer : m_LayerStack)

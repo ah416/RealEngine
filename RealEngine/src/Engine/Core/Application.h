@@ -72,5 +72,5 @@ private:
 	std::vector<std::shared_ptr<EngineImGuiWindow>> m_ImGuiWindows;
 
 	// The last calculated frametime
-	uint64_t m_LastFrameTime;
+	long double m_LastFrameTime;
 };

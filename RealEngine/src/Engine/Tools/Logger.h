@@ -47,6 +47,7 @@ public:
 
 	template<typename FormatString, typename... Args>
 	constexpr void Critical(const FormatString& str, Args&&... args);
+
 private:
 	Logger() = default;
 
@@ -117,6 +118,7 @@ inline constexpr void Logger::Log(LogLevel lvl, Args&&... args)
 	}
 	fmt_str += '\n';
 	std::string formatted_string = fmt::format(fmt_str, std::forward<Args>(args)...);
+
 #ifdef _WIN32
 	auto stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	WriteConsoleA(stdHandle, formatted_string.c_str(), (DWORD)formatted_string.size(), nullptr, nullptr);

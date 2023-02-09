@@ -39,6 +39,8 @@ public:
 
 	virtual uint32_t GetRendererID() const override { return m_RendererID; }
 	virtual void GetData(float* data) const override;
+	virtual int GetWidth() const override { return m_Width; }
+	virtual int GetHeight() const override { return m_Height; }
 private:
 	uint32_t m_RendererID;
 	int m_Width, m_Height;

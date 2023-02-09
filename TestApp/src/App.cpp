@@ -20,7 +20,7 @@ public:
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
 		m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
-		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
+		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/brick.jpg"));
 		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
 
 		std::string computeShader = Shader::ReadShader("../RealEngine/Resources/Shaders/compute.shader");
@@ -39,7 +39,7 @@ public:
 
 		m_RayTexture->Bind(1);
 		m_RayTracer->Bind();
-		m_RayTracer->Dispatch(1024 / 8, 1024 / 4, 1);
+		m_RayTracer->Dispatch(m_RayTexture->GetWidth() / 8, m_RayTexture->GetHeight() / 4, 1);
 		m_RayTracer->Unbind();
 
 		float *pixel_buf = (float *)malloc(sizeof(float) * (1024 * 1024) * 4);
@@ -122,7 +122,7 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image((void *)m_Compute->GetTextureID(), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
+			ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
 		else
 			ImGui::Image((void *)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
@@ -133,6 +133,11 @@ public:
 
 		ImGui::End();
 		ImGui::PopStyleVar();
+
+		ImGui::Begin("ComputeShaders", NULL, ImGuiWindowFlags_NoDocking);
+		ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image((void *)m_Tex->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
 		if (ImGui::Button("ComputeShader/Framebuffer", {180, 25}))
@@ -221,8 +226,9 @@ public:
 
 Application *CreateApplication()
 {
+#ifdef REAL_LINUX
+	// to match msvc launching TestApp in this directory
 	std::filesystem::current_path("/home/adam/Dev/RealEngine/TestApp");
-	::Logger::Get().Info("current_path: {}", std::filesystem::current_path());
-	::Logger::Get().Info("exists?: {}", std::filesystem::exists("../RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf"));
+#endif
 	return new TestApp();
 }

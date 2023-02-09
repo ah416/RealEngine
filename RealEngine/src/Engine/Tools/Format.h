@@ -16,53 +16,58 @@ namespace fmt
 {
 #ifndef USE_STL_FORMAT
 	template <typename FormatString>
-	void FindBracketPositions(const FormatString &str, std::vector<int> &positions, int prev_size)
+	void FindBracketPositions(const FormatString& str, std::vector<int>& positions, int prev_length)
 	{
-		std::string current_str = std::string(str);
+		std::string current_str = str;
 		size_t position = current_str.find('{');
 		if (position == std::string::npos)
 			return;
-		
-		positions.push_back(position + prev_size);
-
-		int prev = current_str.substr(position).size();
-		FindBracketPositions(current_str.substr(position + 1), positions, prev);
+		std::string next = current_str.substr(position + 1);
+		int next_len = (int)current_str.size() - (int)next.size();
+		next_len += prev_length;
+		position += prev_length;
+		positions.push_back((int)position);
+		FindBracketPositions(next, positions, next_len);
 	}
 
 	template <typename... Args>
-	void ToString(std::vector<std::string> &string_args, Args &&...args)
+	constexpr void ToString(std::vector<std::string>& string_args, Args &&...args)
 	{
 		([&](auto input)
-		 {
-			std::stringstream ss;
-			ss << input;
-			string_args.push_back(ss.str());
-		 } (args),...);
+		{
+				std::stringstream ss;
+		ss << input;
+		string_args.push_back(ss.str());
+		} (args), ...);
 	}
 
 	template <typename FormatString, typename... Args>
-	std::string EmbedArguments(const FormatString &str, std::vector<int> &positions, Args &&...args)
+	std::string EmbedArguments(const FormatString& str, Args &&...args)
 	{
+		std::vector<int> positions;
+		FindBracketPositions(str, positions, 0);
+
 		if (sizeof...(args) < positions.size())
 			throw std::runtime_error("Not enough arguments for the formatting string given!");
 
 		std::string current_str = std::string(str);
 		std::vector<std::string> string_args;
 		string_args.reserve(sizeof...(args));
+
 		ToString(string_args, std::forward<Args>(args)...);
 
 		int index = 0;
 		int offset = 0;
-
-		for (auto &pos : positions)
+		for (auto& pos : positions)
 		{
 			// erase the two brackets
 			current_str.erase(pos + offset, 2);
-			offset -= 2;
 
 			// insert the argument
 			current_str.insert(pos + offset, string_args[index]);
-			//offset += string_args[index].size();
+
+			offset -= 2; // subtract 2 for the two brackets
+			offset += (int)string_args[index].size(); // add the size of the stringified arg
 			index++;
 		}
 
@@ -70,13 +75,10 @@ namespace fmt
 	}
 
 	template <typename FormatString, typename... Args>
-	std::string format(const FormatString &str, Args &&...args)
+	std::string format(const FormatString& str, Args &&...args)
 	{
-		// ensure this is a std::string
-		std::string std_str = std::string(str);
-		std::vector<int> positions;
-		FindBracketPositions(std_str, positions, 0);
-		auto fmt_str = EmbedArguments(std_str, positions, std::forward<Args>(args)...);
+		std::string std_str = str;
+		auto fmt_str = EmbedArguments(std_str, std::forward<Args>(args)...);
 
 		return fmt_str;
 	}
@@ -84,7 +86,7 @@ namespace fmt
 
 #ifdef USE_STL_FORMAT
 	template <typename FormatString, typename... Args>
-	std::string format(const FormatString &str, Args &&...args)
+	std::string format(const FormatString& str, Args &&...args)
 	{
 		return std::vformat(str, std::make_format_args(args...));
 	}

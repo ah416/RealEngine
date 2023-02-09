@@ -5,11 +5,15 @@
 class Timestep
 {
 public:
-	Timestep(uint64_t time = 0.0) : m_Time(time) {}
+	Timestep(long double time = 0.0) : m_Time(time) {}
 
+	// Not properly implemented
 	float GetMicroseconds() const { return (float)m_Time; }
-	float GetMilliseconds() const { return (float)m_Time * 0.001f; }
-	float GetSeconds() const { return (float)m_Time * 0.00001f; }
+
+	// Not properly implemented
+	float GetMilliseconds() const { return (float)m_Time; }
+	
+	float GetSeconds() const { return (float)m_Time; }
 private:
-	uint64_t m_Time;
+	long double m_Time;
 };

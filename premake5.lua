@@ -125,6 +125,8 @@ project "TestApp"
 	}
 
 	filter "system:linux"
+		defines "REAL_LINUX"
+
 		links
 		{
 			"RealEngine",
@@ -135,6 +137,8 @@ project "TestApp"
 		}
 
 	filter "system:windows"
+		defines "REAL_WINDOWS"
+		
 		linkoptions { "/ENTRY:WinMainCRTStartup" }
 
 		postbuildcommands 
