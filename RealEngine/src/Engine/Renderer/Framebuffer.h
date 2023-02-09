@@ -1,5 +1,7 @@
 #pragma once
 
+class RenderTexture;
+
 class Framebuffer
 {
 public:
@@ -14,6 +16,8 @@ public:
 
 	virtual int GetWidth() const = 0;
 	virtual int GetHeight() const = 0;
+
+	virtual Ref<RenderTexture> GetTexture() const = 0;
 
 	virtual void SetData(void* data) = 0;
 

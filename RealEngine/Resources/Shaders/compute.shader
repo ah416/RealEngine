@@ -1,6 +1,7 @@
 #version 460 core
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
+layout(rgba32f, binding = 1) uniform image2D img_input;
 
 uniform uint RandomFromCPU;
 
@@ -46,8 +47,11 @@ void main() {
 
 	// get index in global work group i.e x,y position
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 dims = imageSize(img_output);
 
-	pixel = vec4(random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), 1.0);
+	pixel = (imageLoad(img_input, pixel_coords) / 0.5) * (vec4(random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), 1.0) / 0.5);
+
+	//pixel = vec4(random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), random(vec3(gl_GlobalInvocationID.xy, RandomFromCPU)), 1.0);
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);

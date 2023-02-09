@@ -19,12 +19,15 @@ public:
 	virtual int GetWidth() const override;
 	virtual int GetHeight() const override;
 
+	virtual Ref<RenderTexture> GetTexture() const override;
+
 	virtual void SetData(void* data) override;
 
 	virtual uint32_t GetColorAttachmentRendererID() const override;
 private:
 	int m_Width, m_Height;
 	void* m_FramebufferData = nullptr;
+	Ref<RenderTexture> m_ColorTexture;
 	uint32_t m_FramebufferID;
 	uint32_t m_TextureID;
 	uint32_t m_RenderBufferID;

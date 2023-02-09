@@ -32,17 +32,21 @@ void OpenGLFramebuffer::Invalidate()
 	glGenFramebuffers(1, &m_FramebufferID);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 
-	glGenTextures(1, &m_TextureID);
-	glBindTexture(GL_TEXTURE_2D, m_TextureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	if (m_FramebufferData)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_FramebufferData);
-	else
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	m_ColorTexture.reset(RenderTexture::Create(m_Width, m_Height));
+	m_ColorTexture->Bind();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTexture->GetRendererID(), 0);
 
-	// Set texture as our color attachment #0
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureID, 0);
+	// glGenTextures(1, &m_TextureID);
+	// glBindTexture(GL_TEXTURE_2D, m_TextureID);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// if (m_FramebufferData)
+	// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_FramebufferData);
+	// else
+	// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	// // Set texture as our color attachment #0
+	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureID, 0);
 
 	glGenTextures(1, &m_RenderBufferID);
 	glBindTexture(GL_TEXTURE_2D, m_RenderBufferID);
@@ -87,7 +91,12 @@ int OpenGLFramebuffer::GetHeight() const
 	return m_Height;
 }
 
-void OpenGLFramebuffer::SetData(void* data)
+Ref<RenderTexture> OpenGLFramebuffer::GetTexture() const
+{
+	return m_ColorTexture;
+}
+
+void OpenGLFramebuffer::SetData(void *data)
 {
 	m_FramebufferData = data;
 	Invalidate();
@@ -95,5 +104,6 @@ void OpenGLFramebuffer::SetData(void* data)
 
 uint32_t OpenGLFramebuffer::GetColorAttachmentRendererID() const
 {
-	return m_TextureID;
+	return m_ColorTexture->GetRendererID();
+	//return m_TextureID;
 }

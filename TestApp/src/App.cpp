@@ -33,9 +33,7 @@ public:
 		m_RayTracer.reset(ComputeShader::Create(raytracing_shader));
 
 		m_RayTexture.reset(RenderTexture::Create(1024, 1024));
-		m_RayTexture->Bind(1);
 		m_RayTracer->SetTexture(m_RayTexture);
-		m_RayTexture->Unbind();
 
 		m_RayTexture->Bind(1);
 		m_RayTracer->Bind();
@@ -96,6 +94,15 @@ public:
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
 
+		m_Tex->Bind();
+		m_Framebuffer->GetTexture()->Bind(1);
+		m_Compute->Bind();
+		m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
+		m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
+		m_Compute->Unbind();
+		m_Tex->Unbind();
+		m_Framebuffer->GetTexture()->Unbind();
+
 		Renderer::EndScene();
 	}
 
@@ -135,8 +142,8 @@ public:
 		ImGui::PopStyleVar();
 
 		ImGui::Begin("ComputeShaders", NULL, ImGuiWindowFlags_NoDocking);
-		ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
-		ImGui::Image((void *)m_Tex->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
+		//ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image((void *)m_Tex->GetRendererID(), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
 		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
