@@ -27,10 +27,10 @@ public:
 	// Must be called before any rendering occurs. Loads shaders into memory.
 	static void LoadShaders();
 
-	// Begins the scene, and transfers the mvp from the camera to scene data
+	// Begins the scene, and transfers the vp matrix from the camera to scene data
 	static void BeginScene(PerspectiveCamera& camera);
 
-	// Begins the scene, and transfers the mvp from the camera to scene data
+	// Begins the scene, and transfers the vp matrix from the camera to scene data
 	static void BeginScene(OrthographicCamera& camera);
 
 	// Ends the current frame, currently does nothing

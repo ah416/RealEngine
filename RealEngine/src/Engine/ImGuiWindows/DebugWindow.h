@@ -13,7 +13,7 @@
 class DebugWindow : public EngineImGuiWindow
 {
 public:
-	DebugWindow() : m_Frames(0), m_DisplayFPS(0), m_LastTime(0), m_LastTimeMicro(0) {}
+	DebugWindow() : m_Frames(0), m_DisplayFPS(0), m_LastTime(0), m_LastFrameTime(0) {}
 
 	virtual void OnImGuiRender() override
 	{
@@ -24,29 +24,34 @@ public:
 		QueryPerformanceFrequency(&freq);
 		LARGE_INTEGER time;
 		QueryPerformanceCounter(&time);
-		uint64_t micro = ((time.QuadPart - m_LastTimeMicro) * 1000000) / freq.QuadPart;
-		m_LastTimeMicro = time.QuadPart;
+		uint64_t frametime = ((time.QuadPart - m_LastTimeMicro) * 1000000) / freq.QuadPart;
+		m_LastTime = time.QuadPart;
 
 		time.QuadPart = time.QuadPart / freq.QuadPart;
 		m_Frames++;
 
-		if ((time.QuadPart - m_LastTime) >= 1.0f)
+		if ((time.QuadPart - m_LastFrameTime) >= 1.0f)
 		{
 			m_DisplayFPS = m_Frames;
 			m_Frames = 0;
-			m_LastTime = time.QuadPart;
+			m_LastFrameTime = time.QuadPart;
 		}
 
 #else
+		double time = ImGui::GetTime();
 		m_Frames++;
-		m_DisplayFPS = m_Frames;
-		m_Frames = 0;
-		m_LastTime = 0;
-		unsigned char micro = 1;
+		double frametime = time - m_LastTime;
+		m_LastTime = time;
+		if ((time - m_LastFrameTime) >= 1.0f)
+		{
+			m_DisplayFPS = m_Frames;
+			m_Frames = 0;
+			m_LastFrameTime = time;
+		}
 #endif // _WIN32
 		ImGui::Begin("Debug");
 		ImGui::Text("Current FPS: %f", m_DisplayFPS);
-		ImGui::Text("Frametime: %f milliseconds", (double)micro * 0.001);
+		ImGui::Text("Frametime: %f milliseconds", frametime * 1000);
 		ImGui::Text("VSync: %s", Application::Get().GetWindow()->IsVSync() ? "true" : "false");
 		if (ImGui::Button("Enable/Disable VSync", ImVec2(150, 25)))
 			Application::Get().GetWindow()->SetVSync(Application::Get().GetWindow()->IsVSync() ? false : true);
@@ -54,8 +59,8 @@ public:
 		if (ImGui::TreeNode("Render Data"))
 		{
 			ImGui::Text("Draw Calls: %u", Renderer::GetRenderData().DrawCalls);
-			ImGui::Text("Vertex Count: %luu", Renderer::GetRenderData().Vertices);
-			ImGui::Text("Index Count: %llu", Renderer::GetRenderData().Indices);
+			ImGui::Text("Vertex Count: %lu", Renderer::GetRenderData().Vertices);
+			ImGui::Text("Index Count: %lu", Renderer::GetRenderData().Indices);
 
 			ImGui::TreePop();
 		}
@@ -79,8 +84,8 @@ public:
 	}
 
 private:
-	uint64_t m_LastTime;
-	uint64_t m_LastTimeMicro;
+	double m_LastTime;
+	double m_LastFrameTime;
 	float m_Frames;
 	float m_DisplayFPS;
 };

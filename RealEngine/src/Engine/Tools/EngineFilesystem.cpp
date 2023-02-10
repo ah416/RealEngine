@@ -16,7 +16,9 @@ void Filesystem::OpenInFileExplorer(std::filesystem::path path)
 	auto absolutePath = std::filesystem::canonical(path);
 
 	std::string cmd = "explorer.exe /select,\"" + absolutePath.string() + "\"";
-	system(cmd.c_str());
+	int res = system(cmd.c_str());
+	if (res == 0)
+		REAL_ERROR("system command {} failed!", cmd);
 }
 
 std::filesystem::path Filesystem::OpenFileDialog(const char* filter)

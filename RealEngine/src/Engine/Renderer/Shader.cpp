@@ -36,7 +36,7 @@ Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc) : m
 		glDeleteShader(vertexShader);
 
 		// Use the infoLog as you see fit.
-		REAL_ERROR("Vertex shader compilation error: {0}", infoLog.data());
+		REAL_ERROR("Vertex shader compilation error: {}", infoLog.data());
 
 		// In this simple program, we'll just leave
 		return;
@@ -69,7 +69,7 @@ Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc) : m
 		glDeleteShader(vertexShader);
 
 		// Use the infoLog as you see fit.
-		REAL_ERROR("Fragment shader compilation failed: {0}", infoLog.data());
+		REAL_ERROR("Fragment shader compilation failed: {}", infoLog.data());
 
 		// In this simple program, we'll just leave
 		return;
@@ -107,7 +107,7 @@ Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc) : m
 		glDeleteShader(fragmentShader);
 
 		// Use the infoLog as you see fit.
-		REAL_ERROR("Shader link failure: {0}", infoLog.data());
+		REAL_ERROR("Shader link failure: {}", infoLog.data());
 
 		// In this simple program, we'll just leave
 		return;
@@ -154,8 +154,8 @@ std::string Shader::ReadShader(const std::string& filename)
 	}
 	else
 	{
-		REAL_ERROR("Shader::ReadShader({0}) failed!", filename);
-		REAL_ERROR("Current path: {0}", std::filesystem::current_path());
+		REAL_ERROR("Shader::ReadShader({}) failed!", filename);
+		REAL_ERROR("Current path: {}", std::filesystem::current_path());
 		return std::string();
 	}
 }
@@ -170,7 +170,7 @@ int Shader::GetUniformLocation(const std::string& name)
 
 	int location = glGetUniformLocation(m_RendererID, name.c_str());
 	if (location == -1)
-		REAL_ERROR("Warning: uniform '{0}' could not be found!", name);
+		REAL_ERROR("Warning: uniform '{}' could not be found!", name);
 
 	m_UniformLocationCache[name] = location;
 	return 0;

@@ -19,7 +19,7 @@ public:
 
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
-		m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
+		m_TestMesh.reset(new Mesh("../RealEngine/objects/AmongSus.obj"));
 		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/brick.jpg"));
 		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
 
@@ -129,9 +129,9 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
+			ImGui::Image(reinterpret_cast<void*>(m_RayTexture->GetRendererID()), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
 		else
-			ImGui::Image((void *)m_Framebuffer->GetColorAttachmentRendererID(), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void*>(m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::IsItemHovered())
 			m_ViewportHovered = true;
@@ -143,7 +143,7 @@ public:
 
 		ImGui::Begin("ComputeShaders", NULL, ImGuiWindowFlags_NoDocking);
 		//ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
-		ImGui::Image((void *)m_Tex->GetRendererID(), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<void*>(m_Tex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
 		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);

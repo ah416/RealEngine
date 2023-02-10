@@ -5,7 +5,7 @@
 #include <memory>
 
 // Defines and includes for Windows
-#ifdef _WIN32
+#ifdef REAL_WINDOWS
 
 // Including Windows.h and using GLM without these defs causes errors
 #ifndef NOMINMAX
@@ -14,12 +14,12 @@
 
 #include <Windows.h>
 
-#endif // _WIN32
+#endif // REAL_WINDOWS
 
 // DEBUG
 #ifdef REAL_DEBUG
 
-#ifdef _WIN32
+#ifdef REAL_WINDOWS
 // Debug assert uses __debugbreak() which causes the MSVC debugger to enter break mode, release does not use this
 #define REAL_ASSERT(x, text) if (!x) { ::Logger::Get().Error(text); __debugbreak(); }
 
@@ -27,8 +27,9 @@
 
 #define REAL_ASSERT(x, text) if (!x) { ::Logger::Get().Error(text); }
 
-#endif // _WIN32
+#endif // REAL_WINDOWS
 
+#undef REAL_DEBUG
 // Only prints in debug
 #define REAL_DEBUG(...) ::Logger::Get().Info(__VA_ARGS__)
 
@@ -50,7 +51,10 @@
 
 #define REAL_ASSERT(x, text, ...) if (!x) { ::Logger::Get().Error(text); __VA_ARGS__ }
 
+#ifdef REAL_DEBUG
+#undef REAL_DEBUG
 #define REAL_DEBUG(...)
+#endif
 
 #define REAL_INFO(...) ::Logger::Get().Info(__VA_ARGS__)
 
