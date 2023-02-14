@@ -72,4 +72,7 @@ void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& index
 	indexBuffer->Bind();
 
 	m_IndexBuffer = indexBuffer;
+
+	indexBuffer->Unbind();
+	glBindVertexArray(0);
 }

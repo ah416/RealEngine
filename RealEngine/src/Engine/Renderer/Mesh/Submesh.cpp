@@ -23,9 +23,9 @@ bool Submesh::Create()
 		});
 
 	indexIB.reset(IndexBuffer::Create(Indices.data(), (uint32_t)Indices.size() * sizeof(Mesh::Index)));
-	REAL_INFO("Mesh {0}", this->MeshName);
-	REAL_INFO(" - Vertex count: {0}", Vertices.size());
-	REAL_INFO(" - Index count: {0}", Indices.size() * 3);
+	REAL_INFO("Mesh {}", this->MeshName);
+	REAL_INFO(" - Vertex count: {}", Vertices.size());
+	REAL_INFO(" - Index count: {}", Indices.size() * 3);
 
 	m_VertexArray->AddVertexBuffer(vertexVB);
 	m_VertexArray->SetIndexBuffer(indexIB);

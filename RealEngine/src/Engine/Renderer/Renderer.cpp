@@ -15,8 +15,8 @@ std::vector<Ref<Shader>> Renderer::m_Shaders;
 void Renderer::LoadShaders()
 {
 	Ref<Shader> texture_shader;
-	std::string vertexShader = Shader::ReadShader("../RealEngine/src/Engine/Renderer/Shaders/TextureVertex.shader");
-	std::string fragShader = Shader::ReadShader("../RealEngine/src/Engine/Renderer/Shaders/TextureFrag.shader");
+	std::string vertexShader = Shader::ReadShader("../RealEngine/Resources/Shaders/TextureVertex.shader");
+	std::string fragShader = Shader::ReadShader("../RealEngine/Resources/Shaders/TextureFrag.shader");
 	texture_shader.reset(new Shader(vertexShader, fragShader));
 	m_Shaders.push_back(texture_shader);
 }
@@ -56,9 +56,13 @@ void Renderer::Submit(const Ref<Mesh>& mesh, const glm::mat4& transform)
 
 		mesh->MeshMaterial->DiffuseTex->Bind();
 		shader->UploadUniformInt1("u_Material.diffuse", 0);
+		mesh->MeshMaterial->NormalTex->Bind(1);
+		shader->UploadUniformInt1("u_Material.normal", 1);
 
 		shader->UploadUniformFloat3("u_Light.position", { 1.0f, 1.0f, 1.0f });
-		shader->UploadUniformFloat3("u_Light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader->UploadUniformFloat3("u_Light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		shader->UploadUniformFloat3("u_Light.ambient", { 0.1f, 0.1f, 0.1f });
+		
 		shader->UploadUniformFloat3("u_ViewPos", m_SceneData->CameraPosition);
 
 		shader->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);

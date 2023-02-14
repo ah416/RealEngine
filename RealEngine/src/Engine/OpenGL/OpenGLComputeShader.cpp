@@ -29,7 +29,7 @@ OpenGLComputeShader::OpenGLComputeShader(const std::string& shader) : m_Renderer
 		glDeleteShader(compute);
 
 		// Log the data from the infoLog
-		REAL_ERROR("Compute shader compilation error: {0}", infoLog.data());
+		REAL_ERROR("Compute shader compilation error: {}", infoLog.data());
 
 		// Maybe add other checking??
 		return;
@@ -59,7 +59,7 @@ OpenGLComputeShader::OpenGLComputeShader(const std::string& shader) : m_Renderer
 		glDeleteShader(compute);
 
 		// Log the error
-		REAL_ERROR("Shader link failure! {0}", infoLog.data());
+		REAL_ERROR("Shader link failure! {}", infoLog.data());
 
 		// Add other error checking??
 		return;
@@ -112,6 +112,11 @@ void OpenGLComputeShader::SetInt(const std::string& name, const int data)
 	glUniform1i(GetUniformLocation(name), data);
 }
 
+void OpenGLComputeShader::SetIntArray(const std::string& name, const int count, const int* data)
+{
+	glUniform1iv(GetUniformLocation(name), count, data); 
+}
+
 void OpenGLComputeShader::SetUInt(const std::string& name, const unsigned data)
 {
 	glUniform1ui(GetUniformLocation(name), data);
@@ -120,6 +125,11 @@ void OpenGLComputeShader::SetUInt(const std::string& name, const unsigned data)
 void OpenGLComputeShader::SetFloat(const std::string& name, const float data)
 {
 	glUniform1f(GetUniformLocation(name), data);
+}
+
+void OpenGLComputeShader::SetFloatArray(const std::string& name, const int count, const float* data)
+{
+	glUniform1fv(GetUniformLocation(name), count, data);
 }
 
 uint32_t OpenGLComputeShader::GetTextureID() const
@@ -142,7 +152,7 @@ int OpenGLComputeShader::GetUniformLocation(const std::string& name)
 
 	int location = glGetUniformLocation(m_RendererID, name.c_str());
 	if (location == -1)
-		REAL_ERROR("Warning: uniform '{0}' could not be found!", name);
+		REAL_ERROR("Warning: uniform '{}' could not be found!", name);
 
 	m_UniformLocationCache[name] = location;
 	return 0;

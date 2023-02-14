@@ -17,8 +17,10 @@ public:
 	virtual void Dispatch(uint32_t x, uint32_t y, uint32_t z) = 0;
 
 	virtual void SetInt(const std::string& name, const int data) = 0;
+	virtual void SetIntArray(const std::string& name, const int count, const int* data) = 0;
 	virtual void SetUInt(const std::string& name, const unsigned data) = 0;
 	virtual void SetFloat(const std::string& name, const float data) = 0;
+	virtual void SetFloatArray(const std::string& name, const int count, const float* data) = 0;
 	virtual void SetTexture(Ref<RenderTexture> tex) = 0;
 
 	virtual uint32_t GetTextureID() const = 0;

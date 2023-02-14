@@ -3,6 +3,7 @@
 #include "Engine/ImGuiWindows/DebugWindow.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <filesystem>
 
@@ -20,7 +21,7 @@ public:
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
 		m_TestMesh.reset(new Mesh("../RealEngine/objects/AmongSus.obj"));
-		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/brick.jpg"));
+		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
 		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
 
 		std::string computeShader = Shader::ReadShader("../RealEngine/Resources/Shaders/compute.shader");
@@ -39,16 +40,6 @@ public:
 		m_RayTracer->Bind();
 		m_RayTracer->Dispatch(m_RayTexture->GetWidth() / 8, m_RayTexture->GetHeight() / 4, 1);
 		m_RayTracer->Unbind();
-
-		float *pixel_buf = (float *)malloc(sizeof(float) * (1024 * 1024) * 4);
-		uint8_t *conversion_buf = (uint8_t *)malloc(sizeof(uint8_t) * (1024 * 1024) * 4);
-		m_RayTexture->GetData(pixel_buf);
-		for (int i = 0; i < (1024 * 1024) * 4; i++)
-			conversion_buf[i] = static_cast<uint8_t>(pixel_buf[i] * 255.0f);
-		Heightmapper map(1024, 1024, 4);
-		map.SetData(conversion_buf);
-		map.Write("something"); // frees the data passed to it (on stbi_write_png) :3
-		free(pixel_buf);
 	}
 
 	virtual void OnDetach() override
@@ -61,7 +52,7 @@ public:
 
 		// Always Clear and SetClearColor before rendering
 		RenderCommand::Clear();
-		RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
+		RenderCommand::SetClearColor(m_ClearColor);
 
 		// Bind compute shader, set uniform, and Dispatch
 		m_Tex->Bind();
@@ -80,7 +71,7 @@ public:
 
 		// Clear and set the clear color
 		RenderCommand::Clear();
-		RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
+		RenderCommand::SetClearColor(m_ClearColor);
 
 		// Give the renderer the camera position and view/transformation matrix
 		Renderer::BeginScene(m_Camera);
@@ -94,10 +85,15 @@ public:
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
 
+		float kernel[9] = { 1/9.0, 1/9.0, 1/9.0,
+							1/9.0, 1/9.0, 1/9.0,
+							1/9.0, 1/9.0, 1/9.0 };
+
 		m_Tex->Bind();
 		m_Framebuffer->GetTexture()->Bind(1);
 		m_Compute->Bind();
 		m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
+		m_Compute->SetFloatArray("u_Kernel", 9, kernel);
 		m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
 		m_Compute->Unbind();
 		m_Tex->Unbind();
@@ -129,9 +125,9 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image(reinterpret_cast<void*>(m_RayTexture->GetRendererID()), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
+			ImGui::Image(reinterpret_cast<void *>(m_RayTexture->GetRendererID()), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
 		else
-			ImGui::Image(reinterpret_cast<void*>(m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void *>(m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::IsItemHovered())
 			m_ViewportHovered = true;
@@ -142,8 +138,12 @@ public:
 		ImGui::PopStyleVar();
 
 		ImGui::Begin("ComputeShaders", NULL, ImGuiWindowFlags_NoDocking);
-		//ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
-		ImGui::Image(reinterpret_cast<void*>(m_Tex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		// ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<void *>(m_Tex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::End();
+
+		ImGui::Begin("ClearColor", NULL, ImGuiWindowFlags_NoDocking);
+		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005, 0.0, 1.0);
 		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
@@ -216,6 +216,8 @@ private:
 	Ref<RenderTexture> m_Tex;
 	Ref<ComputeShader> m_RayTracer;
 	Ref<RenderTexture> m_RayTexture;
+
+	glm::vec4 m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 0.0);
 };
 
 class TestApp : public Application

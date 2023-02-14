@@ -15,8 +15,10 @@ public:
 	virtual void Dispatch(uint32_t x, uint32_t y, uint32_t z) override;
 
 	virtual void SetInt(const std::string& name, const int data) override;
+	virtual void SetIntArray(const std::string& name, const int count, const int* data) override;
 	virtual void SetUInt(const std::string& name, const unsigned data) override;
 	virtual void SetFloat(const std::string& name, const float data) override;
+	virtual void SetFloatArray(const std::string& name, const int count, const float* data) override;
 	virtual void SetTexture(Ref<RenderTexture> tex) override { m_RenderTexture = tex; };
 
 	virtual uint32_t GetTextureID() const override;
