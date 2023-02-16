@@ -32,6 +32,8 @@ class OpenGLRenderTexture : public RenderTexture
 {
 public:
 	OpenGLRenderTexture(const int width, const int height);
+	OpenGLRenderTexture(const int width, const int height, const void* data);
+	
 	virtual ~OpenGLRenderTexture();
 
 	virtual void Bind(uint32_t slot = 0) const;

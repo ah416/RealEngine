@@ -114,6 +114,19 @@ OpenGLRenderTexture::OpenGLRenderTexture(const int width, const int height) : m_
 	glBindImageTexture(0, m_RendererID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }
 
+OpenGLRenderTexture::OpenGLRenderTexture(const int width, const int height, const void* data) : m_Width(width), m_Height(height)
+{
+	glGenTextures(1, &m_RendererID);
+	//glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
+	glBindImageTexture(0, m_RendererID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+}
+
 OpenGLRenderTexture::~OpenGLRenderTexture()
 {
 	glDeleteTextures(1, &m_RendererID);

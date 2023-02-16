@@ -34,4 +34,5 @@ public:
 	virtual int GetHeight() const = 0;
 
 	static RenderTexture* Create(const int width, const int height);
+	static RenderTexture* Create(const int width, const int height, const void* data);
 };

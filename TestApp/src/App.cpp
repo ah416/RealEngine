@@ -40,6 +40,34 @@ public:
 		m_RayTracer->Bind();
 		m_RayTracer->Dispatch(m_RayTexture->GetWidth() / 8, m_RayTexture->GetHeight() / 4, 1);
 		m_RayTracer->Unbind();
+
+		int w, h, c;
+		const uint8_t *buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
+		float *float_buf = (float *)malloc(sizeof(float) * w * h * 4);
+		for (int i = 0; i < w * h * 4; i++)
+			float_buf[i] = static_cast<float>(buf[i] / 255.0);
+
+		m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
+
+		m_OriginalTex.reset(RenderTexture::Create(w, h, float_buf));
+
+		// float kernel[9] = {1 / 9.0, 1 / 9.0, 1 / 9.0,
+		// 				   1 / 9.0, 1 / 9.0, 1 / 9.0,
+		// 				   1 / 9.0, 1 / 9.0, 1 / 9.0};
+		
+		// m_Tex->Bind();
+		// m_ConvolveTex->Bind(1);
+		// // m_Framebuffer->GetTexture()->Bind(1);
+		// m_Compute->Bind();
+		// m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
+		// m_Compute->SetFloatArray("u_Kernel", 9, kernel);
+		// m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
+		// m_Compute->Unbind();
+		// m_ConvolveTex->Unbind();
+		// m_Tex->Unbind();
+
+
+		// m_Tex->GetData();
 	}
 
 	virtual void OnDetach() override
@@ -85,19 +113,21 @@ public:
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
 
-		float kernel[9] = { 1/9.0, 1/9.0, 1/9.0,
-							1/9.0, 1/9.0, 1/9.0,
-							1/9.0, 1/9.0, 1/9.0 };
+		float kernel[9] = {1 / 9.0, 1 / 9.0, 1 / 9.0,
+						   1 / 9.0, 1 / 9.0, 1 / 9.0,
+						   1 / 9.0, 1 / 9.0, 1 / 9.0};
 
 		m_Tex->Bind();
-		m_Framebuffer->GetTexture()->Bind(1);
+		m_ConvolveTex->Bind(1);
+		// m_Framebuffer->GetTexture()->Bind(1);
 		m_Compute->Bind();
 		m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
 		m_Compute->SetFloatArray("u_Kernel", 9, kernel);
 		m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
 		m_Compute->Unbind();
+		m_ConvolveTex->Unbind();
 		m_Tex->Unbind();
-		m_Framebuffer->GetTexture()->Unbind();
+		// m_Framebuffer->GetTexture()->Unbind();
 
 		Renderer::EndScene();
 	}
@@ -109,6 +139,7 @@ public:
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_AutoHideTabBar);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // make viewport the proper dimensions without padding
+		ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
 		ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar);
 
 		ImGui::CaptureMouseFromApp(false);
@@ -135,14 +166,24 @@ public:
 			m_ViewportHovered = false;
 
 		ImGui::End();
+		ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_Left;
 		ImGui::PopStyleVar();
 
-		ImGui::Begin("ComputeShaders", NULL, ImGuiWindowFlags_NoDocking);
-		// ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
-		ImGui::Image(reinterpret_cast<void *>(m_Tex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Begin("Original Image", NULL, ImGuiWindowFlags_NoDocking);
+		ImGui::Image(reinterpret_cast<void *>(m_OriginalTex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
 		ImGui::End();
 
-		ImGui::Begin("ClearColor", NULL, ImGuiWindowFlags_NoDocking);
+		ImGui::Begin("Box Blurred Image", NULL, ImGuiWindowFlags_NoDocking);
+		// ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<void *>(m_ConvolveTex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::End();
+
+		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoDocking);
+		if (ImGui::TreeNode("Other Options"))
+		{
+			ImGui::Text("I am the other options.");
+			ImGui::TreePop();
+		}
 		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005, 0.0, 1.0);
 		ImGui::End();
 
@@ -216,6 +257,9 @@ private:
 	Ref<RenderTexture> m_Tex;
 	Ref<ComputeShader> m_RayTracer;
 	Ref<RenderTexture> m_RayTexture;
+
+	Ref<RenderTexture> m_OriginalTex;
+	Ref<RenderTexture> m_ConvolveTex;
 
 	glm::vec4 m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 0.0);
 };

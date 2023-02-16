@@ -30,3 +30,8 @@ RenderTexture* RenderTexture::Create(const int width, const int height)
 {
 	return new OpenGLRenderTexture(width, height);
 }
+
+RenderTexture* RenderTexture::Create(const int width, const int height, const void* data)
+{
+	return new OpenGLRenderTexture(width, height, data);
+}
