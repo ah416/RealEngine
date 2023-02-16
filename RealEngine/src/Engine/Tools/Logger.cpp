@@ -1,3 +1,5 @@
+#include <realpch.h>
+
 #include "Logger.h"
 
 Logger* Logger::s_Instance = nullptr;

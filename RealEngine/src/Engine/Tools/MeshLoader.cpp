@@ -17,7 +17,7 @@ struct LogStream : public Assimp::LogStream
 	{
 		if (Assimp::DefaultLogger::isNullLogger())
 		{
-			Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
+			Assimp::DefaultLogger::create();
 			Assimp::DefaultLogger::get()->attachStream(new LogStream, Assimp::Logger::Err | Assimp::Logger::Warn);
 		}
 	}
@@ -26,7 +26,7 @@ struct LogStream : public Assimp::LogStream
 	{
 		PROFILE_FUNCTION();
 
-		REAL_WARN("Assimp: {0}", message);
+		REAL_WARN("Assimp: {}", message);
 	}
 };
 
@@ -50,8 +50,10 @@ bool MeshLoader::Load(const std::string& filepath, Mesh* pMesh)
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(filepath, MeshImportFlags);
+	if (!scene)
+		return false;
 	if (!scene->HasMeshes())
-		REAL_WARN("Scene {0} contained no meshes to load!", scene->GetShortFilename(filepath.c_str()));
+		REAL_WARN("Scene {} contained no meshes to load!", scene->GetShortFilename(filepath.c_str()));
 
 	pMesh->m_Name = scene->mName.C_Str();
 

@@ -19,25 +19,6 @@ public:
 	{
 		PROFILE_FUNCTION();
 
-#ifdef _WIN32
-		LARGE_INTEGER freq;
-		QueryPerformanceFrequency(&freq);
-		LARGE_INTEGER time;
-		QueryPerformanceCounter(&time);
-		uint64_t frametime = ((time.QuadPart - m_LastTimeMicro) * 1000000) / freq.QuadPart;
-		m_LastTime = time.QuadPart;
-
-		time.QuadPart = time.QuadPart / freq.QuadPart;
-		m_Frames++;
-
-		if ((time.QuadPart - m_LastFrameTime) >= 1.0f)
-		{
-			m_DisplayFPS = m_Frames;
-			m_Frames = 0;
-			m_LastFrameTime = time.QuadPart;
-		}
-
-#else
 		double time = ImGui::GetTime();
 		m_Frames++;
 		double frametime = time - m_LastTime;
@@ -48,7 +29,7 @@ public:
 			m_Frames = 0;
 			m_LastFrameTime = time;
 		}
-#endif // _WIN32
+
 		ImGui::Begin("Debug");
 		ImGui::Text("Current FPS: %f", m_DisplayFPS);
 		ImGui::Text("Frametime: %f milliseconds", frametime * 1000);
