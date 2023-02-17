@@ -44,7 +44,7 @@ public:
 		int w, h, c;
 		const uint8_t *buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
 		float *float_buf = (float *)malloc(sizeof(float) * w * h * 4);
-		for (int i = 0; i < w * h * 4; i++)
+		for (int i = 0; i < w * h * c; i++)
 			float_buf[i] = static_cast<float>(buf[i] / 255.0);
 
 		m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
@@ -65,7 +65,6 @@ public:
 		// m_Compute->Unbind();
 		// m_ConvolveTex->Unbind();
 		// m_Tex->Unbind();
-
 
 		// m_Tex->GetData();
 	}

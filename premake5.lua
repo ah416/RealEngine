@@ -52,8 +52,6 @@ project "RealEngine"
 		"%{prj.name}/libs/glm",
 		"%{prj.name}/libs/FastNoiseLite",
 		"%{prj.name}/libs/stb_image",
-		--"%{prj.name}/libs/assimp/include"
-		"/home/adam/VulkanSDK/1.3.239.0/x86_64/include"
 	}
 
 	links 
@@ -61,10 +59,7 @@ project "RealEngine"
 		"GLFW",
 		"glad",
 		"imgui",
-		"opengl32.lib",
-		"vulkan", -- <- download VulkanSDK and run the setup script for the lib to be in PATH
-		--"/home/adam/VulkanSDK/1.3.239.0/lib/vulkan-1.lib",
-		"assimp" -- <- this works only on linux with libassimp-dev installed
+		"opengl32.lib"
 	}
 
 	defines
@@ -76,19 +71,30 @@ project "RealEngine"
 	filter "system:linux"
 		defines "REAL_LINUX"
 
+		includedirs
+		{
+			"/home/adam/VulkanSDK/1.3.239.0/x86_64/include"
+		}
+
+		links
+		{
+			"vulkan", -- <- download VulkanSDK and run the setup script for the lib to be in PATH
+			"assimp" -- <- this works only on linux with libassimp-dev installed
+		}
+
 	filter "system:windows"
 		defines { "REAL_WINDOWS", "_CRT_SECURE_NO_WARNINGS" }
 
 		includedirs
 		{
-			"C:\\VulkanSDK\\Version\\Include",
-			"%{prj.name}\\libs\\assimp\\include"
+			"C:/VulkanSDK/1.3.204.1/Include",
+			"%{prj.name}/libs/assimp/include"
 		}
 
 		links
 		{
-			"C:\\VulkanSDK\\1.3.239.0\\Lib\\vulkan-1.lib",
-			"%{prj.name}\\libs\\assimp\\bin\\Release\\assimp_mt.lib"
+			"C:/VulkanSDK/1.3.204.1/Lib/vulkan-1.lib",
+			"$(SolutionDir)RealEngine/libs/assimp/bin/Release/assimp-vc142-mt.lib"
 		}
 
 	filter "configurations:Debug"
