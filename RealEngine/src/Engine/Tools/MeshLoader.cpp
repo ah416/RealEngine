@@ -17,7 +17,7 @@ struct LogStream : public Assimp::LogStream
 	{
 		if (Assimp::DefaultLogger::isNullLogger())
 		{
-			Assimp::DefaultLogger::create();
+			Assimp::DefaultLogger::create("");
 			Assimp::DefaultLogger::get()->attachStream(new LogStream, Assimp::Logger::Err | Assimp::Logger::Warn);
 		}
 	}
