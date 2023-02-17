@@ -36,37 +36,19 @@ public:
 		m_RayTexture.reset(RenderTexture::Create(1024, 1024));
 		m_RayTracer->SetTexture(m_RayTexture);
 
-		m_RayTexture->Bind(1);
-		m_RayTracer->Bind();
-		m_RayTracer->Dispatch(m_RayTexture->GetWidth() / 8, m_RayTexture->GetHeight() / 4, 1);
-		m_RayTracer->Unbind();
+		std::string convolution_shader = Shader::ReadShader("../RealEngine/Resources/Shaders/Convolution.shader");
+		m_ConvolutionShader.reset(ComputeShader::Create(convolution_shader));
 
 		int w, h, c;
-		const uint8_t *buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
-		float *float_buf = (float *)malloc(sizeof(float) * w * h * 4);
-		for (int i = 0; i < w * h * c; i++)
+		const uint8_t* buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
+		float* float_buf = (float*)malloc(sizeof(float) * w * h * 4);
+
+		for (int i = 0; i < w * h * 4; i++)
 			float_buf[i] = static_cast<float>(buf[i] / 255.0);
 
-		m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
+		m_ConvolveTex.reset(RenderTexture::Create(w, h));
 
 		m_OriginalTex.reset(RenderTexture::Create(w, h, float_buf));
-
-		// float kernel[9] = {1 / 9.0, 1 / 9.0, 1 / 9.0,
-		// 				   1 / 9.0, 1 / 9.0, 1 / 9.0,
-		// 				   1 / 9.0, 1 / 9.0, 1 / 9.0};
-		
-		// m_Tex->Bind();
-		// m_ConvolveTex->Bind(1);
-		// // m_Framebuffer->GetTexture()->Bind(1);
-		// m_Compute->Bind();
-		// m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
-		// m_Compute->SetFloatArray("u_Kernel", 9, kernel);
-		// m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
-		// m_Compute->Unbind();
-		// m_ConvolveTex->Unbind();
-		// m_Tex->Unbind();
-
-		// m_Tex->GetData();
 	}
 
 	virtual void OnDetach() override
@@ -80,13 +62,6 @@ public:
 		// Always Clear and SetClearColor before rendering
 		RenderCommand::Clear();
 		RenderCommand::SetClearColor(m_ClearColor);
-
-		// Bind compute shader, set uniform, and Dispatch
-		m_Tex->Bind();
-		m_Compute->Bind();
-		m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
-		m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
-		m_Compute->Unbind();
 
 		m_RayTexture->Bind(1);
 		m_RayTracer->Bind();
@@ -107,26 +82,23 @@ public:
 		m_Camera.ProcessKeyboardInput(timestep);
 
 		// Submit the mesh to the renderer
-		Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), {0.0, 0.0, 0.0}));
+		Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
 
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
 
-		float kernel[9] = {1 / 9.0, 1 / 9.0, 1 / 9.0,
+		float kernel[9] = { 1 / 9.0, 1 / 9.0, 1 / 9.0,
 						   1 / 9.0, 1 / 9.0, 1 / 9.0,
-						   1 / 9.0, 1 / 9.0, 1 / 9.0};
+						   1 / 9.0, 1 / 9.0, 1 / 9.0 };
 
-		m_Tex->Bind();
-		m_ConvolveTex->Bind(1);
-		// m_Framebuffer->GetTexture()->Bind(1);
-		m_Compute->Bind();
-		m_Compute->SetUInt("RandomFromCPU", std::random_device{}());
-		m_Compute->SetFloatArray("u_Kernel", 9, kernel);
-		m_Compute->Dispatch(1024 / 8, 1024 / 4, 1);
-		m_Compute->Unbind();
+		m_ConvolveTex->Bind();
+		m_OriginalTex->Bind(1);
+		m_ConvolutionShader->Bind();
+		m_ConvolutionShader->SetFloatArray("u_Kernel", 9, kernel);
+		m_ConvolutionShader->Dispatch(1024 / 8, 1024 / 4, 1);
+		m_ConvolutionShader->Unbind();
+		m_OriginalTex->Unbind();
 		m_ConvolveTex->Unbind();
-		m_Tex->Unbind();
-		// m_Framebuffer->GetTexture()->Unbind();
 
 		Renderer::EndScene();
 	}
@@ -155,9 +127,9 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image(reinterpret_cast<void *>(m_RayTexture->GetRendererID()), ImVec2{2048, 2048}, ImVec2{0, 1}, ImVec2{1, 0});
+			ImGui::Image(reinterpret_cast<void*>(m_RayTexture->GetRendererID()), ImVec2{ 2048, 2048 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		else
-			ImGui::Image(reinterpret_cast<void *>(m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{contentArea.x, contentArea.y}, ImVec2{0, 1}, ImVec2{1, 0}); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void*>(m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{ contentArea.x, contentArea.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::IsItemHovered())
 			m_ViewportHovered = true;
@@ -169,12 +141,12 @@ public:
 		ImGui::PopStyleVar();
 
 		ImGui::Begin("Original Image", NULL, ImGuiWindowFlags_NoDocking);
-		ImGui::Image(reinterpret_cast<void *>(m_OriginalTex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<void*>(m_OriginalTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();
 
 		ImGui::Begin("Box Blurred Image", NULL, ImGuiWindowFlags_NoDocking);
 		// ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
-		ImGui::Image(reinterpret_cast<void *>(m_ConvolveTex->GetRendererID()), ImVec2{1024, 1024}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<void*>(m_ConvolveTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();
 
 		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoDocking);
@@ -187,27 +159,27 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
-		if (ImGui::Button("ComputeShader/Framebuffer", {180, 25}))
+		if (ImGui::Button("ComputeShader/Framebuffer", { 180, 25 }))
 		{
 			m_ShowCompute ^= 1;
 		}
 		ImGui::End();
 	}
 
-	virtual void OnEvent(Event &e) override
+	virtual void OnEvent(Event& e) override
 	{
 		EventType type = e.GetType();
 
 		if (type == EventType::MouseMoved)
 		{
-			MouseMovedEvent mouse = *(MouseMovedEvent *)&e;
+			MouseMovedEvent mouse = *(MouseMovedEvent*)&e;
 			if (m_ViewportHovered)
 				m_Camera.ProcessMouseInput(mouse.GetMouseX(), mouse.GetMouseY());
 		}
 
 		if (type == EventType::MouseScrolled)
 		{
-			MouseScrolledEvent mouse = *(MouseScrolledEvent *)&e;
+			MouseScrolledEvent mouse = *(MouseScrolledEvent*)&e;
 			if (mouse.GetYOffset() == -1)
 				m_Camera.SetMovementSpeed(m_Camera.GetMovementSpeed() * 0.9f);
 			else
@@ -216,7 +188,7 @@ public:
 
 		if (type == EventType::KeyPress)
 		{
-			KeyPressedEvent key = *(KeyPressedEvent *)&e;
+			KeyPressedEvent key = *(KeyPressedEvent*)&e;
 			int keycode = key.GetKeycode();
 
 			if (keycode == REAL_KEY_SPACE)
@@ -227,7 +199,7 @@ public:
 
 		if (type == EventType::WindowResize)
 		{
-			WindowResizeEvent resize = *(WindowResizeEvent *)&e;
+			WindowResizeEvent resize = *(WindowResizeEvent*)&e;
 			m_Camera.SetWindowWidth(resize.GetWidth());
 			m_Camera.SetWindowHeight(resize.GetHeight());
 			m_Camera.RecalculateViewProjection();
@@ -239,6 +211,8 @@ public:
 private:
 	bool m_ViewportHovered = false;
 	bool m_ShowCompute = false;
+
+	bool m_FirstPass = true;
 
 	// Camera for view and other matrices
 	PerspectiveCamera m_Camera;
@@ -257,6 +231,7 @@ private:
 	Ref<ComputeShader> m_RayTracer;
 	Ref<RenderTexture> m_RayTexture;
 
+	Ref<ComputeShader> m_ConvolutionShader;
 	Ref<RenderTexture> m_OriginalTex;
 	Ref<RenderTexture> m_ConvolveTex;
 
@@ -276,7 +251,7 @@ public:
 	}
 };
 
-Application *CreateApplication()
+Application* CreateApplication()
 {
 #ifdef REAL_LINUX
 	// to match msvc launching TestApp in this directory
