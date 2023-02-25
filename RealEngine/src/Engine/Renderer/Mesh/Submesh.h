@@ -16,6 +16,7 @@ public:
 	//Submesh(const Ref<VertexArray> vertexArray);
 	Submesh() { m_VertexArray.reset(VertexArray::Create()); }
 
+	// Creates the Submesh from the Vertices and Indices specified
 	bool Create();
 
 	void AssignMaterial(Material* mat) { m_Material.reset(mat); }

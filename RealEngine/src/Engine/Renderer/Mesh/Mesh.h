@@ -43,4 +43,6 @@ private:
 	std::vector<Index> m_Indices;
 	Ref<VertexArray> m_FullMesh;
 	std::string m_Name;
+	std::string m_Filepath;
+	bool m_Loaded = false;
 };

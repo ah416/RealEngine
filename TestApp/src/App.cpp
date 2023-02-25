@@ -46,10 +46,11 @@ public:
 		for (int i = 0; i < w * h * 4; i++)
 			float_buf[i] = static_cast<float>(buf[i] / 255.0);
 
-		m_ConvolveTex.reset(RenderTexture::Create(w, h));
+		m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
 
 		m_OriginalTex.reset(RenderTexture::Create(w, h, float_buf));
 
+		m_TempTex.reset(RenderTexture::Create(w, h, float_buf));
 		free(buf);
 		free(float_buf);
 	}
@@ -85,23 +86,10 @@ public:
 		m_Camera.ProcessKeyboardInput(timestep);
 
 		// Submit the mesh to the renderer
-		Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
+		// Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
 
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
-
-		float kernel[9] = { 1 / 9.0, 1 / 9.0, 1 / 9.0,
-						   1 / 9.0, 1 / 9.0, 1 / 9.0,
-						   1 / 9.0, 1 / 9.0, 1 / 9.0 };
-
-		m_ConvolveTex->Bind();
-		m_OriginalTex->Bind(1);
-		m_ConvolutionShader->Bind();
-		m_ConvolutionShader->SetFloatArray("u_Kernel", 9, kernel);
-		m_ConvolutionShader->Dispatch(1024 / 8, 1024 / 4, 1);
-		m_ConvolutionShader->Unbind();
-		m_OriginalTex->Unbind();
-		m_ConvolveTex->Unbind();
 
 		Renderer::EndScene();
 	}
@@ -153,12 +141,57 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoDocking);
-		if (ImGui::TreeNode("Other Options"))
+		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005, 0.0, 1.0);
+		if (ImGui::TreeNode("Shaders"))
 		{
-			ImGui::Text("I am the other options.");
+			if (ImGui::Button("Convolve")) {
+				float kernel[9] = { 1 / 9.0, 1 / 9.0, 1 / 9.0,
+					1 / 9.0, 1 / 9.0, 1 / 9.0,
+					1 / 9.0, 1 / 9.0, 1 / 9.0 };
+				if (!m_Convolved) {
+					m_ConvolveTex->Bind();
+					m_OriginalTex->Bind(1);
+					m_Convolved = true;
+					REAL_INFO("Fresh convolve!");
+				}
+				else {
+					if (!m_SwapTextures) {
+					m_TempTex->Bind();
+					m_ConvolveTex->Bind(1);
+					m_SwapTextures = true;
+					}
+					else {
+					m_ConvolveTex->Bind();
+					m_TempTex->Bind(1);
+					m_SwapTextures = false;
+					}
+				}
+				m_ConvolutionShader->Bind();
+				m_ConvolutionShader->SetFloatArray("u_Kernel", 9, kernel);
+				m_ConvolutionShader->Dispatch(1024 / 8, 1024 / 4, 1);
+				m_ConvolutionShader->Unbind();
+				m_OriginalTex->Unbind();
+				m_ConvolveTex->Unbind();
+				m_TempTex->Unbind();
+			}
+			if (ImGui::Button("Reset Convolution")) {
+
+				int w, h, c;
+				uint8_t* buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
+				float* float_buf = (float*)malloc(sizeof(float) * w * h * 4);
+
+				for (int i = 0; i < w * h * 4; i++)
+					float_buf[i] = static_cast<float>(buf[i] / 255.0);
+
+				m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
+				m_Convolved = false;
+				m_TempTex.reset(RenderTexture::Create(w, h, float_buf));
+				
+				free(buf);
+				free(float_buf);
+			}
 			ImGui::TreePop();
 		}
-		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005, 0.0, 1.0);
 		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
@@ -237,8 +270,11 @@ private:
 	Ref<ComputeShader> m_ConvolutionShader;
 	Ref<RenderTexture> m_OriginalTex;
 	Ref<RenderTexture> m_ConvolveTex;
+	Ref<RenderTexture> m_TempTex;
+	bool m_Convolved = false;
+	bool m_SwapTextures = false;
 
-	glm::vec4 m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 0.0);
+	glm::vec4 m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 };
 
 class TestApp : public Application
@@ -258,7 +294,7 @@ Application* CreateApplication()
 {
 #ifdef REAL_LINUX
 	// to match msvc launching TestApp in this directory
-	std::filesystem::current_path("/home/adam/Dev/RealEngine/TestApp");
+	std::filesystem::current_path("/home/adamh/Dev/RealEngine/TestApp");
 #endif
 	return new TestApp();
 }

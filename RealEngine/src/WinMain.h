@@ -3,7 +3,7 @@
 #ifndef _WIN32
 extern Application* CreateApplication();
 
-int main()
+int main(int argc, char** argv)
 {
 	Logger::Init();
 
@@ -23,7 +23,6 @@ int main()
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <iostream>
 
 extern Application* CreateApplication();
 

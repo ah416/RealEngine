@@ -29,6 +29,8 @@ bool Submesh::Create()
 
 	m_VertexArray->AddVertexBuffer(vertexVB);
 	m_VertexArray->SetIndexBuffer(indexIB);
-
+	
+	Vertices.clear();
+	Indices.clear();
 	return true;
 }

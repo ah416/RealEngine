@@ -21,7 +21,7 @@ void main() {
 	vec4 accum = vec4(0.0);
 
 	// this works
-	accum += imageLoad(img_input, ivec2(pixel_coords.x - step_size.x, pixel_coords.y + 1)) * u_Kernel[0]; // top left
+	accum += imageLoad(img_input, ivec2(pixel_coords.x - step_size.x, pixel_coords.y + step_size.y)) * u_Kernel[0]; // top left
 	accum += imageLoad(img_input, ivec2(pixel_coords.x, pixel_coords.y + step_size.y)) * u_Kernel[1]; // top
 	accum += imageLoad(img_input, ivec2(pixel_coords.x + step_size.x, pixel_coords.y + step_size.y)) * u_Kernel[2]; // top right
 	accum += imageLoad(img_input, ivec2(pixel_coords.x - step_size.x, pixel_coords.y)) * u_Kernel[3]; // left

@@ -32,7 +32,7 @@ void OpenGLFramebuffer::Invalidate()
 	glGenFramebuffers(1, &m_FramebufferID);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 
-	m_ColorTexture.reset(RenderTexture::Create(m_Width, m_Height));
+	m_ColorTexture.reset(RenderTexture::Create(m_Width, m_Height, m_FramebufferData));
 	m_ColorTexture->Bind();
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTexture->GetRendererID(), 0);
 
