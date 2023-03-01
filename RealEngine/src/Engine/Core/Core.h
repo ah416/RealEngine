@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Engine/Tools/Logger.h"
-
 #include <memory>
 
 // Defines and includes for Windows
 #ifdef REAL_WINDOWS
+
+#define USE_STL_FORMAT
 
 // Including Windows.h and using GLM without these defs causes errors
 #ifndef NOMINMAX
@@ -15,6 +15,8 @@
 #include <Windows.h>
 
 #endif // REAL_WINDOWS
+
+#include "Engine/Tools/Logger.h"
 
 // DEBUG
 #ifdef REAL_DEBUG

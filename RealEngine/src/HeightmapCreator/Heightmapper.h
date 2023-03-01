@@ -1,5 +1,3 @@
-#include "stb_image.h"
-
 #include <cstdint>
 #include <iostream>
 #include <cstring>
@@ -7,37 +5,55 @@
 #include <string>
 #include <random>
 
+#include <Engine/Tools/Format.h>
+
+struct Image {
+	uint32_t* Data;
+	int Width, Height, Channels;
+
+	Image() {
+		Data = NULL;
+		Width = 0;
+		Height = 0;
+		Channels = 0;
+	}
+
+	Image(const char* filename) {
+		if (!Read(filename)) {
+			std::cerr << fmt::format("Failed to load image from {}!", filename);
+		}
+	}
+
+	Image(int w, int h, int c) {
+		Data = (uint32_t*)malloc(sizeof(uint32_t) * w * h * 4);
+		Width = w;
+		Height = h;
+		Channels = c;
+	}
+
+	~Image() {
+		free(Data);
+	}
+	
+	bool Read(const char* filename);
+
+	bool Write(const char* filename);
+};
+
 class Heightmapper {
 public:
-	enum class ImageType {
-		None = 0, PNG, JPG
-	};
-
 	Heightmapper(const char *filename);
 	Heightmapper(int w, int h, int channels);
 	Heightmapper(const Heightmapper &img);
 	~Heightmapper();
 
-	uint8_t* GetData();
+	void AddPerlinNoise();
 
-	// Data must be same width and height as image
-	void SetData(uint8_t* d) { data = d; }
+	void AddSimplexNoise(int minimum, int maximum, float scale, int iterations);
 
-	void Grayscale();
-
-	void AddPerlinNoise2D();
-
-	void AddSimplexNoise2D(int minimum, int maximum, float scale, int iterations);
-
-	bool Write(const char* filename);
+	Image GetImage() const { return m_Image; }
 private:
-	bool read(const char* filename);
-
-	void Map1DTo2DArray();
-
-	void Map2DTo1DArray();
-
-	void GetPixel(int x, int y, int& r, int& g, int& b);
+	void GetPixel(int x, int y, uint8_t& r, uint8_t& g, uint8_t& b);
 
 	/* Function from Christian Maher (cmaher.github.io/posts/working-with-simplex-noise)
 	 * Iterations: num of iterations of noise
@@ -47,13 +63,7 @@ private:
 	 * Low and High are the maximum values of noise to be generated
 	 */
 	float SumOctave(int iterations, int64_t x, int64_t y, float persistence, float scale, int low, int high) const;
+
 private:
-	uint8_t* data = NULL;
-	uint8_t* Data2D = NULL;
-	size_t size = 0;
-	ImageType imageType;
-	const char* imageExt;
-	int w;
-	int h;
-	int channels;
+	Image m_Image;
 };

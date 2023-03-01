@@ -1,6 +1,7 @@
 #include <RealEngine.h>
-#include "HeightmapCreator/Heightmapper.h"
 #include "Engine/ImGuiWindows/DebugWindow.h"
+
+#include <stb_image.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -135,9 +136,17 @@ public:
 		ImGui::Image(reinterpret_cast<void*>(m_OriginalTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();
 
-		ImGui::Begin("Box Blurred Image", NULL, ImGuiWindowFlags_NoDocking);
-		// ImGui::Image((void *)m_RayTexture->GetRendererID(), ImVec2{512, 512}, ImVec2{0, 1}, ImVec2{1, 0});
-		ImGui::Image(reinterpret_cast<void*>(m_ConvolveTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		ImGui::Begin("Convolved Image", NULL, ImGuiWindowFlags_NoDocking);
+		if (!m_SwapTextures)
+		{
+			ImGui::Image(reinterpret_cast<void*>(m_ConvolveTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Text("Using m_ConvolveTex");
+		}
+		else
+		{
+			ImGui::Image(reinterpret_cast<void*>(m_TempTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Text("Using m_TempTex");
+		}
 		ImGui::End();
 
 		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoDocking);
@@ -145,26 +154,23 @@ public:
 		if (ImGui::TreeNode("Shaders"))
 		{
 			if (ImGui::Button("Convolve")) {
-				float kernel[9] = { 1 / 9.0, 1 / 9.0, 1 / 9.0,
-					1 / 9.0, 1 / 9.0, 1 / 9.0,
-					1 / 9.0, 1 / 9.0, 1 / 9.0 };
-				if (!m_Convolved) {
-					m_ConvolveTex->Bind();
-					m_OriginalTex->Bind(1);
-					m_Convolved = true;
-					REAL_INFO("Fresh convolve!");
-				}
-				else {
-					if (!m_SwapTextures) {
+				float kernel[9] = { 1 / 9.0, 1 / 9.0, 1 / 9.0, // box blur
+									1 / 9.0, 1 / 9.0, 1 / 9.0,
+									1 / 9.0, 1 / 9.0, 1 / 9.0 };
+				//float kernel[9] = { 0, -1, 0, // spatial highpass
+				//					-1, 4, -1,
+				//					0, -1, 0 };
+				if (!m_SwapTextures) {
 					m_TempTex->Bind();
 					m_ConvolveTex->Bind(1);
 					m_SwapTextures = true;
-					}
-					else {
+					REAL_INFO("Using m_TempTex as output!");
+				}
+				else {
 					m_ConvolveTex->Bind();
 					m_TempTex->Bind(1);
 					m_SwapTextures = false;
-					}
+					REAL_INFO("Using m_ConvolveTex as output!");
 				}
 				m_ConvolutionShader->Bind();
 				m_ConvolutionShader->SetFloatArray("u_Kernel", 9, kernel);
@@ -184,9 +190,10 @@ public:
 					float_buf[i] = static_cast<float>(buf[i] / 255.0);
 
 				m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
-				m_Convolved = false;
 				m_TempTex.reset(RenderTexture::Create(w, h, float_buf));
-				
+				m_Convolved = false;
+				m_SwapTextures = false;
+
 				free(buf);
 				free(float_buf);
 			}
@@ -294,6 +301,7 @@ Application* CreateApplication()
 {
 #ifdef REAL_LINUX
 	// to match msvc launching TestApp in this directory
+	// TODO: move this to not be a hardcoded path because this is stupid
 	std::filesystem::current_path("/home/adamh/Dev/RealEngine/TestApp");
 #endif
 	return new TestApp();

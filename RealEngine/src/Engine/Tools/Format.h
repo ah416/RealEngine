@@ -8,11 +8,51 @@
 
 #ifdef USE_STL_FORMAT
 #include <format>
+#include <filesystem> // adding format specifiers...
+#include <glm/glm.hpp> // adding format specifiers...
 #endif
+
+// overload format with new things yayy!!!!
+template <>
+struct std::formatter<std::filesystem::path> : std::formatter<std::string> {
+	auto format(const std::filesystem::path& obj, std::format_context& ctx) {
+		return std::formatter<std::string>::format(obj.string(), ctx);
+	}
+};
+
+template <>
+struct std::formatter<glm::vec2> {
+	constexpr auto parse(std::format_parse_context& ctx) {
+		return ctx.begin();
+	}
+
+	auto format(const glm::vec2& obj, std::format_context& ctx) {
+		return std::format_to(ctx.out(), "({}, {})", obj.x, obj.y);
+	}
+};
+
+template <>
+struct std::formatter<glm::vec3> {
+	constexpr auto parse(std::format_parse_context& ctx) {
+		return ctx.begin();
+	}
+
+	auto format(const glm::vec3& obj, std::format_context& ctx) {
+		return std::format_to(ctx.out(), "({}, {}, {})", obj.x, obj.y, obj.z);
+	}
+};
 
 namespace fmt
 {
-#ifndef USE_STL_FORMAT
+#ifdef USE_STL_FORMAT
+
+	template <typename FormatString, typename... Args>
+	std::string format(const FormatString& str, Args &&...args)
+	{
+		return std::vformat(str, std::make_format_args(args...));
+	}
+
+#else
 	template <typename FormatString>
 	void FindBracketPositions(const FormatString& str, std::vector<int>& positions, int prev_length)
 	{
@@ -29,7 +69,7 @@ namespace fmt
 	}
 
 	template <typename... Args>
-	constexpr void ToString(std::vector<std::string>& string_args, Args &&...args)
+	void ToString(std::vector<std::string>& string_args, Args &&...args)
 	{
 		([&](auto input)
 		{
@@ -80,13 +120,5 @@ namespace fmt
 
 		return fmt_str;
 	}
-#endif
-
-#ifdef USE_STL_FORMAT
-	template <typename FormatString, typename... Args>
-	std::string format(const FormatString& str, Args &&...args)
-	{
-		return std::vformat(str, std::make_format_args(args...));
-	}
-#endif
+#endif // USE_STL_FORMAT
 }
