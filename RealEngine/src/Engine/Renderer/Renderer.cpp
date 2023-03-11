@@ -4,7 +4,7 @@
 #include "Engine/Renderer/PerspectiveCamera.h"
 #include "Engine/Renderer/OrthographicCamera.h"
 
-#include "Engine/OpenGL/OpenGLRendererAPI.h"
+#include "Engine/Platform/OpenGL/OpenGLRendererAPI.h"
 
 Renderer::SceneData* Renderer::m_SceneData = new Renderer::SceneData();
 

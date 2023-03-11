@@ -6,8 +6,9 @@
 // Core App //
 #include "Engine/Core/Application.h"
 
-// Logging Tool //
+// Engine Tools //
 #include "Engine/Tools/Logger.h"
+#include "Engine/Tools/EngineFilesystem.h"
 
 // Rendering related headers //
 #include "Engine/Renderer/Renderer.h"

@@ -1,12 +1,14 @@
 #include "realpch.h"
 
-#include "ImGuiLayerOpenGL.h"
+#include "Engine/Platform/OpenGL/ImGuiImpl/ImGuiLayerOpenGL.h"
 
 #include "Core/Application.h"
 
 #include "imgui.h"
-#include "Engine/OpenGL/ImGuiImpl/imgui_impl_opengl3.h"
+#include "Engine/Platform/OpenGL/ImGuiImpl/imgui_impl_opengl3.h"
 #include "Engine/Platform/imgui_impl_glfw.h"
+
+#include <Engine/Tools/EngineFilesystem.h>
 
 struct GLFWwindow;
 
@@ -36,7 +38,8 @@ void ImGuiLayerOpenGL::OnAttach()
 	auto& style = ImGui::GetStyle();
 	auto& colors = style.Colors;
 
-	io.Fonts->AddFontFromFileTTF("../RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf", 16.0f);
+	REAL_INFO("current directory: {}", std::filesystem::current_path());
+	io.Fonts->AddFontFromFileTTF("../RealEngine/src/Engine/Platform/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf", 16.0f);
 
 	//========================================================
 	/// Colors

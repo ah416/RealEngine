@@ -29,22 +29,23 @@ void WindowsWindow::Init()
 	int success = glfwInit();
 	REAL_ASSERT(success, "GLFW Init fail");
 
+	/* glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); DON'T call this unless we use vulkan */
+
 	GLFWwindow* window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title, nullptr, nullptr);
 	m_GLFWWindow = window;
 
-	m_Context = GraphicsContext::Create(window);
+	m_Context = GraphicsContext::Create((void*)m_GLFWWindow);
 	m_Context->Init();
 	m_Context->EnableDepth(true);
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwSetWindowUserPointer(window, &m_Data);
+	glfwSetWindowUserPointer(m_GLFWWindow, &m_Data);
 
 	glfwSetErrorCallback([](int error_code, const char* description)
 		{
-			REAL_ERROR("GLFW Error #{0}: {1}", error_code, description);
+			REAL_ERROR("GLFW Error #{}: {}", error_code, description);
 		});
 
-	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+	glfwSetKeyCallback(m_GLFWWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 	switch (action)
@@ -69,24 +70,24 @@ void WindowsWindow::Init()
 	}
 	}
 		});
-	glfwSetWindowCloseCallback(window, [](GLFWwindow* window)
+	glfwSetWindowCloseCallback(m_GLFWWindow, [](GLFWwindow* window)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-	WindowCloseEvent e;
-	data.EventCallback(e);
+			WindowCloseEvent e;
+			data.EventCallback(e);
 		});
 
-	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height)
+	glfwSetWindowSizeCallback(m_GLFWWindow, [](GLFWwindow* window, int width, int height)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-	data.Width = width;
-	data.Height = height;
+			data.Width = width;
+			data.Height = height;
 
-	WindowResizeEvent e(width, height);
-	data.EventCallback(e);
+			WindowResizeEvent e(width, height);
+			data.EventCallback(e);
 		});
 
-	glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods)
+	glfwSetMouseButtonCallback(m_GLFWWindow, [](GLFWwindow* window, int button, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -113,13 +114,13 @@ void WindowsWindow::Init()
 	}
 		});
 
-	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+	glfwSetScrollCallback(m_GLFWWindow, [](GLFWwindow* window, double xoffset, double yoffset) {
 		WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
 	MouseScrolledEvent e((float)xoffset, (float)yoffset);
 	data.EventCallback(e);
 		});
-	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xPos, double yPos)
+	glfwSetCursorPosCallback(m_GLFWWindow, [](GLFWwindow* window, double xPos, double yPos)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -127,7 +128,7 @@ void WindowsWindow::Init()
 	data.EventCallback(e);
 		});
 
-	glfwSetCharCallback(window, [](GLFWwindow* window, uint32_t codepoint)
+	glfwSetCharCallback(m_GLFWWindow, [](GLFWwindow* window, uint32_t codepoint)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 

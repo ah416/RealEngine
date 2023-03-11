@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Renderer/Buffer.h"
+#include "Engine/Renderer/Buffer.h"
 
 class OpenGLVertexBuffer : public VertexBuffer
 {

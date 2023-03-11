@@ -9,7 +9,7 @@ struct GLFWwindow;
 class OpenGLContext : public GraphicsContext
 {
 public:
-	OpenGLContext(GLFWwindow* glfwWindow);
+	OpenGLContext(void* window_handle);
 
 	virtual void Init() override;
 	virtual void SwapBuffers() override;

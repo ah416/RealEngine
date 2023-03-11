@@ -2,7 +2,7 @@
 
 #include "ComputeShader.h"
 
-#include "Engine/OpenGL/OpenGLComputeShader.h"
+#include "Engine/Platform/OpenGL/OpenGLComputeShader.h"
 
 ComputeShader* ComputeShader::Create(const std::string& shader)
 {

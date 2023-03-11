@@ -5,7 +5,7 @@
 #include "Core/Application.h"
 
 #include "imgui.h"
-#include "Engine/OpenGL/ImGuiImpl/imgui_impl_opengl3.h"
+#include "Engine/Platform/OpenGL/ImGuiImpl/imgui_impl_opengl3.h"
 //#include "Engine/Vulkan/ImGuiImpl/imgui_impl_vulkan.h"
 #include "Engine/Platform/imgui_impl_glfw.h"
 
@@ -38,7 +38,7 @@ void ImGuiLayer::OnAttach()
 	auto& style = ImGui::GetStyle();
 	auto& colors = style.Colors;
 
-	io.Fonts->AddFontFromFileTTF("../RealEngine/src/Engine/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf", 16.0f);
+	io.Fonts->AddFontFromFileTTF("../RealEngine/src/Engine/Platform/OpenGL/ImGuiImpl/Fonts/CascadiaCode.ttf", 16.0f);
 
 	//========================================================
 	/// Colors

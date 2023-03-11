@@ -37,7 +37,7 @@ public:
 	std::shared_ptr<Window> GetWindow() const { return m_Window; }
 
 	// Returns the last calculated frametime
-	uint64_t GetFrametime() const { return m_LastFrameTime; }
+	double GetFrametime() const { return m_LastFrameTime; }
 
 	// Returns a reference to the static application instance
 	static Application& Get() { return *s_Instance; }

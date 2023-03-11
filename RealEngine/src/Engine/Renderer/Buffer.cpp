@@ -2,7 +2,7 @@
 
 #include "Buffer.h"
 
-#include "../OpenGL/OpenGLBuffer.h"
+#include "Engine/Platform/OpenGL/OpenGLBuffer.h"
 
 VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size)
 {

@@ -1,7 +1,7 @@
 #include <realpch.h>
 
 #include "Texture.h"
-#include "Engine/OpenGL/OpenGLTexture.h"
+#include "Engine/Platform/OpenGL/OpenGLTexture.h"
 
 //
 // Texture2D

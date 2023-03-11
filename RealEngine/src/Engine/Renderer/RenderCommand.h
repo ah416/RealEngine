@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/OpenGL/OpenGLRendererAPI.h"
+#include "Engine/Renderer/RendererAPI.h"
 
 class RenderCommand
 {
@@ -15,5 +15,5 @@ public:
 
 	static inline void DrawArrays(const int first, const int count) { s_API->DrawArrays(first, count); }
 private:
-	static OpenGLRendererAPI* s_API;
+	static RendererAPI* s_API;
 };

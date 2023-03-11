@@ -1,7 +1,7 @@
 #include "realpch.h"
 
 #include "Framebuffer.h"
-#include "OpenGL/OpenGLFramebuffer.h"
+#include "Engine/Platform/OpenGL/OpenGLFramebuffer.h"
 
 Framebuffer* Framebuffer::Create(int width, int height)
 {

@@ -125,6 +125,7 @@ OpenGLRenderTexture::OpenGLRenderTexture(const int width, const int height, cons
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
 	glBindImageTexture(0, m_RendererID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 OpenGLRenderTexture::~OpenGLRenderTexture()
@@ -141,6 +142,7 @@ void OpenGLRenderTexture::Bind(uint32_t slot) const
 
 void OpenGLRenderTexture::Unbind() const
 {
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }

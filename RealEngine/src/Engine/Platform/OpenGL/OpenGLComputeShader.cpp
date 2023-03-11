@@ -4,6 +4,7 @@
 #include "OpenGLTexture.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 OpenGLComputeShader::OpenGLComputeShader(const std::string& shader) : m_RendererID(0), m_RenderTexture(0)
 {
@@ -67,6 +68,7 @@ OpenGLComputeShader::OpenGLComputeShader(const std::string& shader) : m_Renderer
 
 	// Detach the shaders
 	glDetachShader(program, compute);
+	Unbind();
 }
 
 OpenGLComputeShader::~OpenGLComputeShader()
@@ -86,26 +88,9 @@ void OpenGLComputeShader::Unbind() const
 
 void OpenGLComputeShader::Dispatch(uint32_t x, uint32_t y, uint32_t z)
 {
-	glUseProgram(m_RendererID);
 	glDispatchCompute(x, y, z);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	//glUseProgram(0);
 }
-
-/*
-void OpenGLComputeShader::CreateTexture(uint32_t width, uint32_t height)
-{
-	glGenTextures(1, &m_RenderTexture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_RenderTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, width, 0, GL_RGBA, GL_FLOAT, NULL);
-	glBindImageTexture(0, m_RenderTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-}
-*/
 
 void OpenGLComputeShader::SetInt(const std::string& name, const int data)
 {
@@ -132,6 +117,9 @@ void OpenGLComputeShader::SetFloatArray(const std::string& name, const int count
 	glUniform1fv(GetUniformLocation(name), count, data);
 }
 
+void OpenGLComputeShader::SetMat3(const std::string& name, const glm::mat3& matrix) {
+	glUniformMatrix3fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
 uint32_t OpenGLComputeShader::GetTextureID() const
 {
 	return m_RenderTexture->GetRendererID();

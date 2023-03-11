@@ -4,6 +4,8 @@
 
 #ifdef _WIN32
 #include <ShlObj.h>
+#else
+#include <unistd.h>
 #endif
 
 bool Filesystem::IsDirectory(std::filesystem::path path)

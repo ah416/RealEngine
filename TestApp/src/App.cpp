@@ -8,10 +8,12 @@
 
 #include <filesystem>
 
+#include "ConvolutionShaders.h"
+
 class TestLayer : public Layer
 {
 public:
-	TestLayer() : Layer("Test"), m_Camera(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()) {}
+	TestLayer() : Layer("Test"), m_Camera(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()), m_Convolution(nullptr) {}
 
 	virtual void OnAttach() override
 	{
@@ -21,9 +23,9 @@ public:
 
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
-		m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
+		/*m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
 		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
-		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
+		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));*/
 
 		std::string computeShader = Shader::ReadShader("../RealEngine/Resources/Shaders/compute.shader");
 		m_Compute.reset(ComputeShader::Create(computeShader));
@@ -37,27 +39,17 @@ public:
 		m_RayTexture.reset(RenderTexture::Create(1024, 1024));
 		m_RayTracer->SetTexture(m_RayTexture);
 
-		std::string convolution_shader = Shader::ReadShader("../RealEngine/Resources/Shaders/Convolution.shader");
-		m_ConvolutionShader.reset(ComputeShader::Create(convolution_shader));
+		m_Convolution = new Convolution();
+		m_Convolution->SetImage("../RealEngine/textures/yote.png");
 
-		int w, h, c;
-		uint8_t* buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
-		float* float_buf = (float*)malloc(sizeof(float) * w * h * 4);
-
-		for (int i = 0; i < w * h * 4; i++)
-			float_buf[i] = static_cast<float>(buf[i] / 255.0);
-
-		m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
-
-		m_OriginalTex.reset(RenderTexture::Create(w, h, float_buf));
-
-		m_TempTex.reset(RenderTexture::Create(w, h, float_buf));
-		free(buf);
-		free(float_buf);
+		//glm::mat3 kernel = { 0, -1, 0, // spatial highpass
+		//				   -1, 4, -1,
+		//					0, -1, 0 };
 	}
 
 	virtual void OnDetach() override
 	{
+		delete m_Convolution;
 	}
 
 	virtual void OnUpdate(Timestep timestep) override
@@ -67,11 +59,6 @@ public:
 		// Always Clear and SetClearColor before rendering
 		RenderCommand::Clear();
 		RenderCommand::SetClearColor(m_ClearColor);
-
-		m_RayTexture->Bind(1);
-		m_RayTracer->Bind();
-		m_RayTracer->Dispatch(1024 / 8, 1024 / 4, 1);
-		m_RayTracer->Unbind();
 
 		// Bind framebuffer before rendering
 		m_Framebuffer->Bind();
@@ -99,11 +86,15 @@ public:
 	{
 		PROFILE_FUNCTION();
 
+		ImGui::ShowDemoWindow();
+
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_AutoHideTabBar);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0)); // make viewport the proper dimensions without padding
 		ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
 		ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar);
+
+		m_Convolution->RenderImGui();
 
 		ImGui::CaptureMouseFromApp(false);
 
@@ -119,9 +110,9 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image(reinterpret_cast<void*>(m_RayTexture->GetRendererID()), ImVec2{ 2048, 2048 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void*>((uint64_t)m_RayTexture->GetRendererID()), ImVec2{ 2048, 2048 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		else
-			ImGui::Image(reinterpret_cast<void*>(m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{ contentArea.x, contentArea.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void*>((uint64_t)m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{ contentArea.x, contentArea.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::IsItemHovered())
 			m_ViewportHovered = true;
@@ -132,73 +123,8 @@ public:
 		ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_Left;
 		ImGui::PopStyleVar();
 
-		ImGui::Begin("Original Image", NULL, ImGuiWindowFlags_NoDocking);
-		ImGui::Image(reinterpret_cast<void*>(m_OriginalTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-		ImGui::End();
-
-		ImGui::Begin("Convolved Image", NULL, ImGuiWindowFlags_NoDocking);
-		if (!m_SwapTextures)
-		{
-			ImGui::Image(reinterpret_cast<void*>(m_ConvolveTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-			ImGui::Text("Using m_ConvolveTex");
-		}
-		else
-		{
-			ImGui::Image(reinterpret_cast<void*>(m_TempTex->GetRendererID()), ImVec2{ 512, 512 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-			ImGui::Text("Using m_TempTex");
-		}
-		ImGui::End();
-
 		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoDocking);
-		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005, 0.0, 1.0);
-		if (ImGui::TreeNode("Shaders"))
-		{
-			if (ImGui::Button("Convolve")) {
-				float kernel[9] = { 1 / 9.0, 1 / 9.0, 1 / 9.0, // box blur
-									1 / 9.0, 1 / 9.0, 1 / 9.0,
-									1 / 9.0, 1 / 9.0, 1 / 9.0 };
-				//float kernel[9] = { 0, -1, 0, // spatial highpass
-				//					-1, 4, -1,
-				//					0, -1, 0 };
-				if (!m_SwapTextures) {
-					m_TempTex->Bind();
-					m_ConvolveTex->Bind(1);
-					m_SwapTextures = true;
-					REAL_INFO("Using m_TempTex as output!");
-				}
-				else {
-					m_ConvolveTex->Bind();
-					m_TempTex->Bind(1);
-					m_SwapTextures = false;
-					REAL_INFO("Using m_ConvolveTex as output!");
-				}
-				m_ConvolutionShader->Bind();
-				m_ConvolutionShader->SetFloatArray("u_Kernel", 9, kernel);
-				m_ConvolutionShader->Dispatch(1024 / 8, 1024 / 4, 1);
-				m_ConvolutionShader->Unbind();
-				m_OriginalTex->Unbind();
-				m_ConvolveTex->Unbind();
-				m_TempTex->Unbind();
-			}
-			if (ImGui::Button("Reset Convolution")) {
-
-				int w, h, c;
-				uint8_t* buf = stbi_load("../RealEngine/textures/yote.png", &w, &h, &c, 4);
-				float* float_buf = (float*)malloc(sizeof(float) * w * h * 4);
-
-				for (int i = 0; i < w * h * 4; i++)
-					float_buf[i] = static_cast<float>(buf[i] / 255.0);
-
-				m_ConvolveTex.reset(RenderTexture::Create(w, h, float_buf));
-				m_TempTex.reset(RenderTexture::Create(w, h, float_buf));
-				m_Convolved = false;
-				m_SwapTextures = false;
-
-				free(buf);
-				free(float_buf);
-			}
-			ImGui::TreePop();
-		}
+		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005f, 0.0f, 1.0f);
 		ImGui::End();
 
 		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
@@ -274,12 +200,7 @@ private:
 	Ref<ComputeShader> m_RayTracer;
 	Ref<RenderTexture> m_RayTexture;
 
-	Ref<ComputeShader> m_ConvolutionShader;
-	Ref<RenderTexture> m_OriginalTex;
-	Ref<RenderTexture> m_ConvolveTex;
-	Ref<RenderTexture> m_TempTex;
-	bool m_Convolved = false;
-	bool m_SwapTextures = false;
+	Convolution* m_Convolution;
 
 	glm::vec4 m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 };

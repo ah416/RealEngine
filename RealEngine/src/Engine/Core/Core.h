@@ -64,7 +64,7 @@
 
 #define REAL_ERROR(...) ::Logger::Get().Error(__VA_ARGS__)
 
-#define REAL_CRITICAL(...) ::Logger::Get().Critical(__VA_ARGS__)
+#define REAL_CRITICAL(...) ::Logger::Get().Critical(__VA_ARGS__);
 
 #endif
 
