@@ -18,6 +18,7 @@ public:
 	virtual void SetIntArray(const std::string& name, const int count, const int* data) override;
 	virtual void SetUInt(const std::string& name, const unsigned data) override;
 	virtual void SetFloat(const std::string& name, const float data) override;
+	virtual void SetFloat3(const std::string& name, const glm::vec3& data) override;
 	virtual void SetFloatArray(const std::string& name, const int count, const float* data) override;
 	virtual void SetMat3(const std::string& name, const glm::mat3& matrix) override;
 	virtual void SetTexture(Ref<RenderTexture> tex) override { m_RenderTexture = tex; };

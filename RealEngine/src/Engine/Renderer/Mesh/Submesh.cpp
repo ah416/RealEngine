@@ -4,6 +4,10 @@
 #include "Engine/Tools/MeshLoader.h"
 #include <assimp/Importer.hpp>
 
+Submesh::Submesh(const Ref<VertexArray> va) {
+	m_VertexArray = va;
+}
+
 bool Submesh::Create()
 {
 	PROFILE_FUNCTION();
@@ -30,7 +34,7 @@ bool Submesh::Create()
 	m_VertexArray->AddVertexBuffer(vertexVB);
 	m_VertexArray->SetIndexBuffer(indexIB);
 	
-	Vertices.clear();
-	Indices.clear();
+	//Vertices.clear();
+	//Indices.clear();
 	return true;
 }

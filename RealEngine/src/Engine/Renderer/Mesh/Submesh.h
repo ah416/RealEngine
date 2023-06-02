@@ -13,7 +13,7 @@ class Submesh
 {
 public:
 	//Submesh(const std::string& filepath);
-	//Submesh(const Ref<VertexArray> vertexArray);
+	Submesh(const Ref<VertexArray> vertexArray);
 	Submesh() { m_VertexArray.reset(VertexArray::Create()); }
 
 	// Creates the Submesh from the Vertices and Indices specified

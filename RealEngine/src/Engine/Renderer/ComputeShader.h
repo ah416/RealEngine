@@ -22,6 +22,7 @@ public:
 	virtual void SetIntArray(const std::string& name, const int count, const int* data) = 0;
 	virtual void SetUInt(const std::string& name, const unsigned data) = 0;
 	virtual void SetFloat(const std::string& name, const float data) = 0;
+	virtual void SetFloat3(const std::string& name, const glm::vec3& data) = 0;
 	virtual void SetFloatArray(const std::string& name, const int count, const float* data) = 0;
 	virtual void SetMat3(const std::string& name, const glm::mat3& matrix) = 0;
 	virtual void SetTexture(Ref<RenderTexture> tex) = 0;

@@ -18,6 +18,7 @@
 #include "Engine/Renderer/Buffer.h"
 #include "Engine/Renderer/Framebuffer.h"
 #include "Engine/Renderer/Texture.h"
+#include "Engine/Renderer/Mesh/Mesh.h"
 
 // Camera Related Headers //
 #include "Engine/Renderer/PerspectiveCamera.h"

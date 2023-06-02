@@ -4,10 +4,14 @@
 
 #include <stb_image.h>
 
-class Convolution {
+class ConvolutionShaders {
 public:
-	Convolution() {
+	ConvolutionShaders() {
 		ReloadShader();
+		for (int i = 0; i < 3; i++) {
+			m_Kernel1[i] = glm::vec3(0.0f);
+			m_Kernel2[i] = glm::vec3(0.0f);
+		}
 	}
 
 	bool SetShaderPath(const std::string& filepath) {
@@ -39,7 +43,7 @@ public:
 		uint8_t* buf = stbi_load(m_CurrentImage.c_str(), &w, &h, &c, 4);
 		if (!buf)
 			return false;
-		float* float_buf = (float*)malloc(sizeof(float) * w * h * 4);
+		float* float_buf = new float[w * h * 4];
 
 		for (int i = 0; i < w * h * 4; i++)
 			float_buf[i] = static_cast<float>(buf[i] / 255.0);
@@ -50,9 +54,21 @@ public:
 		m_SwapTextures = false;
 
 		free(buf);
-		free(float_buf);
+		delete[] float_buf;
 
 		return true;
+	}
+
+	void SetKernel1(const glm::mat3& k) {
+		m_Kernel1[0] = k[0];
+		m_Kernel1[1] = k[1];
+		m_Kernel1[2] = k[2];
+	}
+
+	void SetKernel2(const glm::mat3& k) {
+		m_Kernel2[0] = k[0];
+		m_Kernel2[1] = k[1];
+		m_Kernel2[2] = k[2];
 	}
 
 	void Compute() {
@@ -75,9 +91,11 @@ public:
 			m_SwapTextures = false;
 		}
 		m_ConvolutionShader->Bind();
-		m_ConvolutionShader->SetMat3("u_Gx", u_Gx);
-		m_ConvolutionShader->SetMat3("u_Gy", u_Gy);
-		m_ConvolutionShader->Dispatch(m_ConvolveTex->GetWidth() / 8, m_ConvolveTex->GetHeight() / 4, 1);
+		glm::mat3 kernel1 = { m_Kernel1[0], m_Kernel1[1], m_Kernel1[2] };
+		glm::mat3 kernel2 = { m_Kernel2[0], m_Kernel2[1], m_Kernel2[2] };
+		m_ConvolutionShader->SetMat3("u_Gx", kernel1);
+		m_ConvolutionShader->SetMat3("u_Gy", kernel2);
+		m_ConvolutionShader->Dispatch(m_ConvolveTex->GetWidth() / 4, m_ConvolveTex->GetHeight() / 4, 1);
 		m_ConvolutionShader->Unbind();
 		m_ConvolveTex->Unbind();
 		m_TempTex->Unbind();
@@ -109,6 +127,14 @@ public:
 						ResetImage();
 					}
 				}
+				if (ImGui::BeginMenu("Change Kernels")) {
+					for (int i = 0; i < 3; i++) {
+						char buf[256];
+						snprintf(buf, 256, "kernel%i", i);
+						ImGui::DragFloat3(buf, glm::value_ptr(m_Kernel1[i]), 0.01f, -2.0f, 2.0f);
+					}
+					ImGui::EndMenu();
+				}
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -130,9 +156,12 @@ private:
 	bool m_SwapTextures = false;
 	std::string m_CurrentImage = "";
 
-	std::string m_ShaderPath = "../RealEngine/Resources/Shaders/Convolution.glsl";
+	std::string m_ShaderPath = "../RealEngine/Resources/Shaders/PartialDerivatives.glsl";
 	Ref<ComputeShader> m_ConvolutionShader;
 	Ref<RenderTexture> m_OriginalTex;
 	Ref<RenderTexture> m_ConvolveTex;
 	Ref<RenderTexture> m_TempTex;
+
+	glm::vec3 m_Kernel1[3];
+	glm::vec3 m_Kernel2[3];
 };

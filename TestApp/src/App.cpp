@@ -13,7 +13,7 @@
 class TestLayer : public Layer
 {
 public:
-	TestLayer() : Layer("Test"), m_Camera(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()), m_Convolution(nullptr) {}
+	TestLayer() : Layer("Test"), m_Camera(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()), m_PartialDerivatives(nullptr) {}
 
 	virtual void OnAttach() override
 	{
@@ -23,11 +23,11 @@ public:
 
 		m_Framebuffer.reset(Framebuffer::Create(Application::Get().GetWindow()->GetWidth(), Application::Get().GetWindow()->GetHeight()));
 
-		/*m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
-		m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
-		m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));*/
+		//m_TestMesh.reset(new Mesh("../RealEngine/objects/Puro V2.fbx"));
+		//m_TestMesh->MeshMaterial->DiffuseTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsAlbedo.png"));
+		//m_TestMesh->MeshMaterial->NormalTex.reset(Texture2D::Create("../RealEngine/textures/AmongUsNormal.png"));
 
-		std::string computeShader = Shader::ReadShader("../RealEngine/Resources/Shaders/compute.shader");
+		std::string computeShader = Shader::ReadShader("../RealEngine/Resources/Shaders/Convolution.glsl");
 		m_Compute.reset(ComputeShader::Create(computeShader));
 
 		m_Tex.reset(RenderTexture::Create(1024, 1024));
@@ -39,8 +39,8 @@ public:
 		m_RayTexture.reset(RenderTexture::Create(1024, 1024));
 		m_RayTracer->SetTexture(m_RayTexture);
 
-		m_Convolution = new Convolution();
-		m_Convolution->SetImage("../RealEngine/textures/yote.png");
+		m_PartialDerivatives = new ConvolutionShaders();
+		m_PartialDerivatives->SetImage("../RealEngine/textures/yote.png");
 
 		//glm::mat3 kernel = { 0, -1, 0, // spatial highpass
 		//				   -1, 4, -1,
@@ -49,7 +49,7 @@ public:
 
 	virtual void OnDetach() override
 	{
-		delete m_Convolution;
+		delete m_PartialDerivatives;
 	}
 
 	virtual void OnUpdate(Timestep timestep) override
@@ -74,7 +74,7 @@ public:
 		m_Camera.ProcessKeyboardInput(timestep);
 
 		// Submit the mesh to the renderer
-		// Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
+		//Renderer::Submit(m_TestMesh, glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 }));
 
 		// Unbind the framebuffer
 		m_Framebuffer->Unbind();
@@ -94,7 +94,7 @@ public:
 		ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
 		ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar);
 
-		m_Convolution->RenderImGui();
+		m_PartialDerivatives->RenderImGui();
 
 		ImGui::CaptureMouseFromApp(false);
 
@@ -110,9 +110,9 @@ public:
 		}
 
 		if (m_ShowCompute)
-			ImGui::Image(reinterpret_cast<void*>((uint64_t)m_RayTexture->GetRendererID()), ImVec2{ 2048, 2048 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void*>((uintptr_t)m_RayTexture->GetRendererID()), ImVec2{ 2048, 2048 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		else
-			ImGui::Image(reinterpret_cast<void*>((uint64_t)m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{ contentArea.x, contentArea.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image(reinterpret_cast<void*>((uintptr_t)m_Framebuffer->GetColorAttachmentRendererID()), ImVec2{ contentArea.x, contentArea.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }); // , ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::IsItemHovered())
 			m_ViewportHovered = true;
@@ -125,9 +125,7 @@ public:
 
 		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoDocking);
 		ImGui::DragFloat4("Clear Color", glm::value_ptr(m_ClearColor), 0.005f, 0.0f, 1.0f);
-		ImGui::End();
 
-		ImGui::Begin("Compute Shader / Framebuffer", NULL, ImGuiWindowFlags_NoDocking);
 		if (ImGui::Button("ComputeShader/Framebuffer", { 180, 25 }))
 		{
 			m_ShowCompute ^= 1;
@@ -200,7 +198,7 @@ private:
 	Ref<ComputeShader> m_RayTracer;
 	Ref<RenderTexture> m_RayTexture;
 
-	Convolution* m_Convolution;
+	ConvolutionShaders* m_PartialDerivatives;
 
 	glm::vec4 m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 };

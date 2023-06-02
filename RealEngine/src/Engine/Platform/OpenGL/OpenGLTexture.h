@@ -7,9 +7,9 @@
 class OpenGLTexture2D : public Texture2D
 {
 public:
-	OpenGLTexture2D();
-	OpenGLTexture2D(const std::string& path);
-	OpenGLTexture2D(const int width, const int height, const uint8_t* data);
+	OpenGLTexture2D(TextureFormat format = TextureFormat::RGBA8);
+	OpenGLTexture2D(const std::string& path, TextureFormat format = TextureFormat::RGBA8);
+	OpenGLTexture2D(const int width, const int height, const uint8_t* data, TextureFormat format = TextureFormat::RGBA8);
 
 	virtual ~OpenGLTexture2D();
 

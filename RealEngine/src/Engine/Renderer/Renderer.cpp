@@ -74,19 +74,11 @@ void Renderer::Submit(const Ref<Mesh>& mesh, const glm::mat4& transform)
 	for (auto& submesh : mesh->m_Submeshes)
 	{
 		submesh.GetVertexArray()->Bind();
-		for (auto& i : submesh.GetVertexArray()->GetVertexBuffers())
-		{
-			i->Bind();
-		}
 
 		submesh.GetVertexArray()->GetIndexBuffer()->Bind();
 		RenderCommand::DrawIndexed(submesh.GetVertexArray());
 		s_RenderData->DrawCalls += 1;
 
-		for (auto& i : submesh.GetVertexArray()->GetVertexBuffers())
-		{
-			i->Unbind();
-		}
 		submesh.GetVertexArray()->GetIndexBuffer()->Unbind();
 		submesh.GetVertexArray()->Unbind();
 	}

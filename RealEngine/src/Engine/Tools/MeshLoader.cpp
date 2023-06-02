@@ -67,7 +67,6 @@ bool MeshLoader::Load(const std::string& filepath, Mesh* pMesh)
 		Submesh& submesh = pMesh->m_Submeshes.emplace_back();
 		submesh.BaseVertex = vertexCount;
 		submesh.BaseIndex = indexCount;
-		//submesh.MaterialIndex = mesh->mMaterialIndex;
 		submesh.VertexCount = mesh->mNumVertices;
 		submesh.IndexCount = mesh->mNumFaces * 3;
 		submesh.MeshName = mesh->mName.C_Str();
@@ -107,7 +106,6 @@ bool MeshLoader::Load(const std::string& filepath, Mesh* pMesh)
 			submesh.Indices.push_back(index);
 
 			pMesh->m_Indices.push_back(index);
-			//m_TriangleCache[m].emplace_back(m_StaticVertices[index.V1 + submesh.BaseVertex], m_StaticVertices[index.V2 + submesh.BaseVertex], m_StaticVertices[index.V3 + submesh.BaseVertex]);
 		}
 		submesh.Create();
 	}

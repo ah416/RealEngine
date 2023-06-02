@@ -112,6 +112,11 @@ void OpenGLComputeShader::SetFloat(const std::string& name, const float data)
 	glUniform1f(GetUniformLocation(name), data);
 }
 
+void OpenGLComputeShader::SetFloat3(const std::string& name, const glm::vec3& data)
+{
+	glUniform3fv(GetUniformLocation(name), 3, glm::value_ptr(data));
+}
+
 void OpenGLComputeShader::SetFloatArray(const std::string& name, const int count, const float* data)
 {
 	glUniform1fv(GetUniformLocation(name), count, data);

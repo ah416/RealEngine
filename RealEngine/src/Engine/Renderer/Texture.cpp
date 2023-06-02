@@ -7,17 +7,17 @@
 // Texture2D
 //
 
-Texture2D* Texture2D::Create()
+Texture2D* Texture2D::Create(TextureFormat format)
 {
 	return new OpenGLTexture2D();
 }
 
-Texture2D* Texture2D::Create(const std::string& path)
+Texture2D* Texture2D::Create(const std::string& path, TextureFormat format)
 {
 	return new OpenGLTexture2D(path);
 }
 
-Texture2D* Texture2D::Create(const int width, const int height, const uint8_t* data)
+Texture2D* Texture2D::Create(const int width, const int height, const uint8_t* data, TextureFormat format)
 {
 	return new OpenGLTexture2D(width, height, data);
 }

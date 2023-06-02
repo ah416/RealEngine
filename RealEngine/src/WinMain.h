@@ -43,7 +43,6 @@ int CALLBACK WinMain(
 	PROFILE_END_SESSION();
 
 	delete app;
-
 	return 0;
 }
 

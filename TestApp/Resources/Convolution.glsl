@@ -3,7 +3,8 @@ layout(local_size_x = 4, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
 layout(rgba32f, binding = 1) uniform image2D img_input;
 
-uniform mat3 u_Kernel;
+uniform mat3 u_Gx;
+uniform mat3 u_Gy;
 
 ivec2 kpos(int index) {
     return ivec2[9] (
@@ -31,7 +32,6 @@ mat3[3] sample_region(ivec2 coords) {
 
 	return matrix_region;
 }
-
 vec3 convolve(mat3 kernel, ivec2 coords) {
 	vec3 pixel;
 
@@ -53,10 +53,13 @@ vec3 convolve(mat3 kernel, ivec2 coords) {
 void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 
-	vec3 result = convolve(u_Kernel, pixel_coords);
+	vec3 Gx = convolve(u_Gx, pixel_coords);
+	vec3 Gy = convolve(u_Gy, pixel_coords);
 
-	vec4 pixel = vec4(result, 1.0);
-	pixel = pixel;
+	vec3 G = sqrt(vec3(pow(Gx.x, 2), pow(Gx.y, 2), pow(Gx.z, 2)) + vec3(pow(Gy.x, 2), pow(Gy.y, 2), pow(Gy.z, 2)));
+
+	vec4 pixel = vec4(G, 1.0);
+	pixel = pixel * 0.5;
 
 	imageStore(img_output, pixel_coords, pixel);
 }

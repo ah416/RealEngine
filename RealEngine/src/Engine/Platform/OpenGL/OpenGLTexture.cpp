@@ -11,7 +11,7 @@
 // OpenGLTexture2D
 //
 
-OpenGLTexture2D::OpenGLTexture2D() : m_Width(1), m_Height(1), m_Channels(4)
+OpenGLTexture2D::OpenGLTexture2D(TextureFormat format) : m_Width(1), m_Height(1), m_Channels(4)
 {
 	glGenTextures(1, &m_RendererID);
 	glBindTexture(GL_TEXTURE_2D, m_RendererID);
@@ -27,7 +27,7 @@ OpenGLTexture2D::OpenGLTexture2D() : m_Width(1), m_Height(1), m_Channels(4)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : m_RendererID(0), m_FilePath(path), m_Width(0), m_Height(0), m_Channels(0)
+OpenGLTexture2D::OpenGLTexture2D(const std::string& path, TextureFormat format) : m_RendererID(0), m_FilePath(path), m_Width(0), m_Height(0), m_Channels(0)
 {
 	stbi_set_flip_vertically_on_load(1);
 	uint8_t* local_buffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, 4);
@@ -65,7 +65,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : m_RendererID(0), m_F
 		stbi_image_free(local_buffer);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(const int width, const int height, const uint8_t* data) : m_Width(width), m_Height(height), m_Channels(4)
+OpenGLTexture2D::OpenGLTexture2D(const int width, const int height, const uint8_t* data, TextureFormat format) : m_Width(width), m_Height(height), m_Channels(4)
 {
 	glGenTextures(1, &m_RendererID);
 	glBindTexture(GL_TEXTURE_2D, m_RendererID);

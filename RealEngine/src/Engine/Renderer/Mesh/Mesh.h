@@ -26,6 +26,7 @@ public:
 		uint32_t V1, V2, V3;
 	};
 public:
+	Mesh(const std::vector<Submesh> meshes);
 	Mesh(const std::string& filepath);
 
 	void Scale(float scale);

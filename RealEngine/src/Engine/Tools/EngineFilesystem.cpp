@@ -45,6 +45,15 @@ std::filesystem::path Filesystem::OpenFileDialog(const char* filter)
 		std::replace(fp.begin(), fp.end(), '\\', '/');
 		return std::filesystem::path(fp);
 	}
+#else
+	char filename[1024];
+	FILE* f = popen("zenity --file-selection", "r");
+	fgets(filename, 1024, f);
+	filename[strcspn(filename, "\n")] = 0;
+
+	if (strcmp(filename, "") == 0)
+		return std::filesystem::path();
+	return std::filesystem::path(std::string(filename));
 #endif // _WIN32
 
 	return std::filesystem::path();
